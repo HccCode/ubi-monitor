@@ -1,20 +1,17 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
-// 1. NUEVO: Función para formatear el tiempo en segundos a un formato humano
 const formatUptime = (seconds) => {
   if (!seconds || seconds === 0) return '0 min';
-
   const d = Math.floor(seconds / (3600 * 24));
   const h = Math.floor((seconds % (3600 * 24)) / 3600);
   const m = Math.floor((seconds % 3600) / 60);
 
   let result = [];
-  if (d > 0) result.push(`${d} ${d === 1 ? 'día' : 'días'}`);
-  if (h > 0) result.push(`${h} ${h === 1 ? 'hora' : 'horas'}`);
-  if (m > 0 || result.length === 0) result.push(`${m} min`);
-
-  return result.join(', ');
+  if (d > 0) result.push(`${d}d`);
+  if (h > 0) result.push(`${h}h`);
+  if (m > 0 || result.length === 0) result.push(`${m}m`);
+  return result.join(' ');
 };
 
 function App() {
@@ -24,209 +21,340 @@ function App() {
 
   useEffect(() => {
     const socket = io('http://localhost:3001');
-
-    socket.on('connect', () => {
-      console.log('Conectado al servidor en tiempo real');
-    });
-
     socket.on('device_updates', (data) => {
       setDevices(data);
       setLoading(false);
     });
-
-    return () => {
-      socket.disconnect();
-    };
+    return () => socket.disconnect();
   }, []);
 
   const activeDevice = devices.find(d => d.ip === selectedIp);
 
-  // --- ESTILOS ---
-  const containerStyle = {
-    fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", monospace',
-    backgroundColor: '#0a0a0c',
-    minHeight: '100vh',
-    color: '#e2e8f0',
-    paddingBottom: '40px'
-  };
-
-  const headerStyle = {
-    padding: '20px 40px',
-    backgroundColor: '#131419',
-    borderBottom: '2px solid #27272a',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  };
-
-  const gridStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-    gap: '20px',
-    padding: '30px 40px'
-  };
-
-  // 2. MODIFICADO: Evalúa el equipo para aplicar estilos de alerta
-  const cardStyle = (dev) => {
-    // Si está en línea y la CPU > 85, es un estado crítico
-    const isWarning = dev.status === 'Online' && dev.cpu > 85;
-    const isOffline = dev.status !== 'Online';
-
-    return {
-      // Borde base: rojo (offline), naranja (alerta cpu), gris oscuro (normal)
-      border: `1px solid ${isOffline ? '#ff073a' : isWarning ? '#ff9500' : '#3f3f46'}`,
-      borderRadius: '4px',
-      padding: '20px',
-      backgroundColor: '#18181b',
-      cursor: 'pointer',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center',
-      transition: 'transform 0.1s, border-color 0.2s',
-      // Aplica la animación CSS intermitente definida abajo
-      animation: isWarning ? 'pulseAlert 1.5s infinite' : 'none'
-    };
-  };
-
-  const modalOverlayStyle = {
-    position: 'fixed',
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    backdropFilter: 'blur(5px)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000
-  };
-
-  const modalContentStyle = (status) => ({
-    backgroundColor: '#131419',
-    border: `1px solid ${status === 'Online' ? '#39ff14' : '#ff073a'}`,
-    borderRadius: '4px',
-    padding: '30px',
-    width: '90%',
-    maxWidth: '500px',
-    boxShadow: `inset 0 0 20px rgba(0,0,0,1), 0 0 15px ${status === 'Online' ? 'rgba(57, 255, 20, 0.1)' : 'rgba(255, 7, 58, 0.1)'}`,
-    position: 'relative'
-  });
-
-  const labelStyle = { color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' };
-  const valueStyle = { fontSize: '1.1rem', color: '#ffffff', margin: '4px 0 16px 0' };
+  // KPIs
+  const totalDevices = devices.length;
+  const onlineCount = devices.filter(d => d.status === 'Online').length;
+  const offlineCount = totalDevices - onlineCount;
   
-  // MODIFICADO: El LED ahora puede ser Verde, Rojo o Naranja
-  const ledStyle = (status, cpu = 0) => {
-    let color = '#39ff14'; // Verde por defecto
-    if (status !== 'Online') color = '#ff073a'; // Rojo si cae
-    else if (cpu > 85) color = '#ff9500'; // Naranja si CPU alta
-
-    return {
-      height: '12px', width: '12px',
-      backgroundColor: color,
-      borderRadius: '50%',
-      boxShadow: `0 0 10px ${color}`,
-      display: 'inline-block'
-    };
-  };
+  const onlineDevices = devices.filter(d => d.status === 'Online');
+  const avgCpu = onlineDevices.length > 0 
+    ? Math.round(onlineDevices.reduce((sum, dev) => sum + dev.cpu, 0) / onlineDevices.length)
+    : 0;
 
   return (
-    <div style={containerStyle}>
-      {/* 3. NUEVO: Inyectamos la animación CSS para el efecto intermitente */}
+    <div className="app-container">
+      {/* FONDO ANIMADO Y LUCES */}
+      <div className="ambient-background">
+        <div className="glow glow-1"></div>
+        <div className="glow glow-2"></div>
+      </div>
+
       <style>
         {`
-          @keyframes pulseAlert {
-            0% { box-shadow: 0 0 5px #ff9500; border-color: #ff9500; }
-            50% { box-shadow: 0 0 25px #ff9500, inset 0 0 15px rgba(255, 149, 0, 0.2); border-color: #ffb700; }
-            100% { box-shadow: 0 0 5px #ff9500; border-color: #ff9500; }
+          :root {
+            --bg-main: #030305;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --glass-hover: rgba(255, 255, 255, 0.04);
+            --text-primary: #ffffff;
+            --text-secondary: #8a8f98;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius-lg: 24px;
+            --radius-md: 16px;
           }
+
+          body {
+            margin: 0;
+            background-color: var(--bg-main);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+          }
+
+          .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+          }
+
+          /* BACKGROUND GLOW EFFECTS */
+          .ambient-background {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1; overflow: hidden; pointer-events: none;
+          }
+          .glow {
+            position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15;
+          }
+          .glow-1 {
+            background: #3b82f6; width: 600px; height: 600px;
+            top: -200px; left: -200px;
+          }
+          .glow-2 {
+            background: #8b5cf6; width: 500px; height: 500px;
+            bottom: -100px; right: -100px;
+          }
+
+          /* NAVBAR */
+          .glass-nav {
+            height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(3, 3, 5, 0.5);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky; top: 0; z-index: 50;
+          }
+
+          .nav-title {
+            font-weight: 500; font-size: 1.1rem; letter-spacing: 0.5px;
+            display: flex; align-items: center; gap: 12px;
+          }
+
+          @keyframes pulse-live {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+          }
+
+          .live-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 6px 14px; border-radius: 100px;
+            font-size: 0.8rem; font-weight: 500;
+            display: flex; align-items: center; gap: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+          }
+          .live-dot {
+            width: 6px; height: 6px; background: var(--success); border-radius: 50%;
+            animation: pulse-live 2s infinite;
+          }
+
+          /* BENTO BOX LAYOUT (KPIs & GRID) */
+          .content-wrapper {
+            padding: 40px; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box;
+          }
+
+          .bento-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px; margin-bottom: 32px;
+          }
+
+          .bento-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          }
+
+          .kpi-card { display: flex; flex-direction: column; gap: 12px; }
+          .kpi-title { color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+          .kpi-value { font-size: 2.5rem; font-weight: 600; letter-spacing: -1px; line-height: 1; }
+
+          .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+          }
+
+          .device-card {
+            cursor: pointer; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: space-between;
+          }
+          .device-card:hover {
+            background: var(--glass-hover);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+          }
+
+          /* PROGRESS BAR NEON */
+          .neon-progress-bg {
+            background: rgba(255,255,255,0.05); height: 6px; border-radius: 10px; overflow: hidden; margin-top: 10px;
+          }
+          .neon-progress-fill {
+            height: 100%; border-radius: 10px; transition: width 0.6s ease;
+          }
+
+          /* MODAL REDISEÑADO */
+          .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(12px);
+            display: flex; justify-content: center; align-items: center; z-index: 100;
+            animation: fadeIn 0.3s ease;
+          }
+          .modal-content {
+            background: rgba(15, 15, 20, 0.8);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px; /* Super redondeado estilo Apple */
+            padding: 40px; width: 90%; max-width: 460px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          }
+
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
         `}
       </style>
 
-      <header style={headerStyle}>
-        <h1 style={{ margin: 0, fontSize: '1.4rem', letterSpacing: '2px', color: '#ffffff' }}>
-          NOC // Ubiquiti Status
-        </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#a1a1aa' }}>
-          <span style={ledStyle('Online', 0)}></span> LVE_STREAM
+      {/* NAVBAR */}
+      <nav className="glass-nav">
+        <div className="nav-title">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+          </svg>
+          UBNT Analytics
         </div>
-      </header>
+        <div className="live-badge">
+          <span className="live-dot"></span> Live
+        </div>
+      </nav>
 
-      {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: '#39ff14', letterSpacing: '2px' }}>
-          &gt; INICIANDO CONEXIÓN SNMP...
-        </div>
-      ) : (
-        <div style={gridStyle}>
-          {devices.map(dev => (
-            <div 
-              key={dev.ip} 
-              style={cardStyle(dev)} // Pasamos el dispositivo completo para calcular alertas
-              onClick={() => setSelectedIp(dev.ip)} 
-            >
-              <span style={{ ...ledStyle(dev.status, dev.cpu), marginBottom: '15px', transform: 'scale(1.5)' }}></span>
-              
-              <h2 style={{ margin: '0 0 5px 0', fontSize: '1.1rem', color: '#ffffff' }}>
-                {dev.name.toUpperCase()}
-              </h2>
-              
-              <div style={{ color: '#a1a1aa', fontSize: '0.9rem' }}>{dev.ip}</div>
-              
-              {/* NUEVO: Pequeño indicador de advertencia visible solo si CPU > 85% */}
-              {dev.status === 'Online' && dev.cpu > 85 && (
-                <div style={{ marginTop: '12px', color: '#ff9500', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '1px' }}>
-                  ⚠ ALERTA CPU: {dev.cpu}%
-                </div>
-              )}
+      <div className="content-wrapper">
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '100px', color: 'var(--text-secondary)' }}>
+            Estableciendo conexión táctica...
+          </div>
+        ) : (
+          <>
+            {/* KPIs BENTO */}
+            <div className="bento-kpis">
+              <div className="bento-card kpi-card">
+                <span className="kpi-title">Infraestructura Total</span>
+                <span className="kpi-value">{totalDevices}</span>
+              </div>
+              <div className="bento-card kpi-card" style={{ background: onlineCount > 0 ? 'rgba(16, 185, 129, 0.05)' : '' }}>
+                <span className="kpi-title">Nodos Activos</span>
+                <span className="kpi-value" style={{ color: 'var(--success)' }}>{onlineCount}</span>
+              </div>
+              <div className="bento-card kpi-card" style={{ background: offlineCount > 0 ? 'rgba(239, 68, 68, 0.05)' : '' }}>
+                <span className="kpi-title">Nodos Caídos</span>
+                <span className="kpi-value" style={{ color: offlineCount > 0 ? 'var(--danger)' : 'var(--text-primary)' }}>{offlineCount}</span>
+              </div>
+              <div className="bento-card kpi-card">
+                <span className="kpi-title">Estrés Promedio</span>
+                <span className="kpi-value">{avgCpu}<span style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>%</span></span>
+              </div>
             </div>
-          ))}
-        </div>
-      )}
 
-      {/* VENTANA MODAL */}
+            {/* GRID DE DISPOSITIVOS */}
+            <div className="bento-grid">
+              {devices.map(dev => {
+                const isOnline = dev.status === 'Online';
+                const isWarning = isOnline && dev.cpu > 85;
+                const statusColor = !isOnline ? 'var(--danger)' : isWarning ? 'var(--warning)' : 'var(--success)';
+
+                return (
+                  <div key={dev.ip} className="bento-card device-card" onClick={() => setSelectedIp(dev.ip)}>
+                    
+                    {/* Header de la tarjeta */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+                      <div>
+                        <h3 style={{ margin: '0 0 6px 0', fontSize: '1.25rem', fontWeight: '500' }}>{dev.name}</h3>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{dev.ip}</div>
+                      </div>
+                      <div style={{ 
+                        width: '12px', height: '12px', borderRadius: '50%', background: statusColor,
+                        boxShadow: `0 0 12px ${statusColor}`,
+                        animation: isWarning ? 'pulse-live 1s infinite' : 'none'
+                      }}></div>
+                    </div>
+
+                    {/* Info de la tarjeta */}
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '8px' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>Uptime</span>
+                        <span style={{ fontWeight: '500' }}>{isOnline ? formatUptime(dev.uptime) : 'Offline'}</span>
+                      </div>
+                      
+                      {isOnline && (
+                        <div style={{ marginTop: '20px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                            <span style={{ color: 'var(--text-secondary)' }}>CPU</span>
+                            <span style={{ fontWeight: '500', color: isWarning ? 'var(--warning)' : 'inherit' }}>{dev.cpu}%</span>
+                          </div>
+                          <div className="neon-progress-bg">
+                            <div className="neon-progress-fill" style={{ 
+                              width: `${dev.cpu}%`, 
+                              background: statusColor,
+                              boxShadow: `0 0 10px ${statusColor}` // Brillo de neón
+                            }}></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* MODAL / BOTTOM SHEET */}
       {activeDevice && (
-        <div style={modalOverlayStyle} onClick={() => setSelectedIp(null)}>
-          <div style={modalContentStyle(activeDevice.status)} onClick={e => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={() => setSelectedIp(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
             
-            <button 
-              onClick={() => setSelectedIp(null)}
-              style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: '#a1a1aa', fontSize: '1.5rem', cursor: 'pointer' }}
-            >
-              ✕
-            </button>
-
-            <h2 style={{ margin: '0 0 25px 0', fontSize: '1.5rem', color: '#ffffff', borderBottom: '1px solid #27272a', paddingBottom: '15px' }}>
-              &gt; DETALLE_NODO // {activeDevice.name.toUpperCase()}
-            </h2>
-
-            <div style={labelStyle}>Dirección IP</div>
-            <div style={valueStyle}>{activeDevice.ip}</div>
-
-            <div style={labelStyle}>Estado de Enlace</div>
-            <div style={{ ...valueStyle, color: activeDevice.status === 'Online' ? '#39ff14' : '#ff073a', fontWeight: 'bold' }}>
-              {activeDevice.status === 'Online' ? 'OPERATIVO' : 'CAÍDO'}
-            </div>
-
-            <div style={labelStyle}>Tiempo Activo (Uptime)</div>
-            {/* 4. APLICADO: Usamos la función formatUptime aquí */}
-            <div style={valueStyle}>
-              {activeDevice.status === 'Online' ? formatUptime(activeDevice.uptime) : '---'}
-            </div>
-
-            <div style={labelStyle}>Carga de CPU en vivo</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '8px' }}>
-              <div style={{ flexGrow: 1, backgroundColor: '#27272a', height: '8px', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ 
-                  width: `${activeDevice.status === 'Online' ? activeDevice.cpu : 0}%`, 
-                  backgroundColor: activeDevice.cpu > 85 ? '#ff9500' : '#39ff14', // Cambia a naranja si es alto
-                  height: '100%',
-                  transition: 'width 0.3s'
-                }}></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+              <div>
+                <h2 style={{ margin: '0 0 4px 0', fontSize: '1.6rem', fontWeight: '600' }}>{activeDevice.name}</h2>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{activeDevice.ip}</div>
               </div>
-              <div style={{ color: '#ffffff', minWidth: '40px', textAlign: 'right' }}>
-                {activeDevice.status === 'Online' ? `${activeDevice.cpu}%` : '---'}
-              </div>
+              <button 
+                onClick={() => setSelectedIp(null)} 
+                style={{ 
+                  background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', 
+                  width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer',
+                  display: 'flex', justifyContent: 'center', alignItems: 'center', transition: 'background 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+              >
+                ✕
+              </button>
             </div>
 
+            <div style={{ 
+              background: 'rgba(0,0,0,0.3)', padding: '24px', borderRadius: 'var(--radius-md)', 
+              border: '1px solid rgba(255,255,255,0.03)' 
+            }}>
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Estado del Enlace</span>
+                  <span style={{ 
+                    color: activeDevice.status === 'Online' ? 'var(--success)' : 'var(--danger)', 
+                    fontWeight: '500', background: activeDevice.status === 'Online' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                    padding: '4px 12px', borderRadius: '100px'
+                  }}>
+                    {activeDevice.status}
+                  </span>
+               </div>
+               
+               <div style={{ display: 'flex', justifyContent: 'space-between', margin: '24px 0', fontSize: '0.95rem' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Tiempo Activo Continuo</span>
+                  <span style={{ fontWeight: '500' }}>{activeDevice.status === 'Online' ? formatUptime(activeDevice.uptime) : 'N/A'}</span>
+               </div>
+
+               <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '0.95rem' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Rendimiento CPU</span>
+                    <span style={{ fontWeight: '600' }}>{activeDevice.status === 'Online' ? `${activeDevice.cpu}%` : '---'}</span>
+                  </div>
+                  <div className="neon-progress-bg" style={{ height: '8px' }}>
+                    <div className="neon-progress-fill" style={{ 
+                      width: `${activeDevice.status === 'Online' ? activeDevice.cpu : 0}%`, 
+                      background: activeDevice.cpu > 85 ? 'var(--warning)' : 'var(--success)',
+                      boxShadow: `0 0 12px ${activeDevice.cpu > 85 ? 'var(--warning)' : 'var(--success)'}`
+                    }}></div>
+                  </div>
+               </div>
+            </div>
           </div>
         </div>
       )}
