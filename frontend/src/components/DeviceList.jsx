@@ -1,6 +1,6 @@
 export default function DeviceList({ devices, onSelect }) {
   if (devices.length === 0) {
-    return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--muted)' }}>No nodes provisioned.</div>;
+    return <div style={{ padding: '60px', textAlign: 'center', color: 'var(--muted)' }}>No network nodes provisioned.</div>;
   }
 
   return (

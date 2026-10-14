@@ -5,6 +5,13 @@ export default function DeviceDrawer({ device, onClose }) {
   const isWarning = isOnline && device.cpu > 85;
   const color = !isOnline ? 'var(--danger)' : isWarning ? 'var(--warning)' : 'var(--success)';
 
+  const handleDelete = async () => {
+    if (window.confirm(`Remove ${device.name} from monitoring?`)) {
+      await fetch(`http://localhost:3001/api/devices/${device.ip}`, { method: 'DELETE' });
+      onClose();
+    }
+  };
+
   return (
     <div className="drawer-overlay" onClick={onClose}>
       <div className="drawer" onClick={e => e.stopPropagation()}>
@@ -49,7 +56,7 @@ export default function DeviceDrawer({ device, onClose }) {
         </div>
 
         <div className="drawer-section">
-          <button className="btn-outline" style={{ width: '100%', color: 'var(--danger)', borderColor: 'rgba(248, 113, 113, 0.2)' }}>
+          <button className="btn-outline" onClick={handleDelete} style={{ width: '100%', color: 'var(--danger)', borderColor: 'rgba(248, 113, 113, 0.2)' }}>
             Remove Device
           </button>
         </div>
