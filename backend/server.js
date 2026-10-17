@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const snmp = require('net-snmp');
 const { Client } = require('ssh2');
-const { RouterOSClient } = require('node-routeros');
+const { RouterOSAPI } = require('node-routeros'); // Clase correcta para la API
 
 const app = express();
 app.use(cors());
@@ -28,7 +28,7 @@ const OID_UBNT_STAS = "1.3.6.1.4.1.41112.1.4.5.1.15.1";
 const OID_UBNT_NOISE = "1.3.6.1.4.1.41112.1.4.5.1.8.1";
 
 // Configuración de tu Router Core MikroTik
-const MK_HOST = '192.168.2.1'; // IP de tu MikroTik
+const MK_HOST = '192.168.2.1';  // IP de tu MikroTik
 const MK_USER = 'Procam';       // Usuario de MikroTik
 const MK_PASS = 'Pro029240937'; // Contraseña de MikroTik
 
@@ -52,13 +52,18 @@ const saveSettings = (settings) => fs.writeFileSync(settingsFilePath, JSON.strin
 
 // --- Endpoints CRUD Básicos ---
 app.post('/api/devices', (req, res) => {
-  const { ip, name, community, lat, lng, parentIp } = req.body;
+  // Recibimos ip (gestión Ubiquiti) y clientIp (servicio Tenda)
+  const { ip, clientIp, name, community, lat, lng, parentIp } = req.body;
   const devices = getDevices();
   if (devices.find(d => d.ip === ip)) return res.status(400).json({ error: 'IP ya existe' });
   
   devices.push({ 
-    ip, name, community, status: 'Pending', 
-    trafficHistory: Array(15).fill({ rx: 0, tx: 0, time: '', signal: 0, snr: 0 }), // Historial extendido
+    ip, 
+    clientIp: clientIp || '', 
+    name, 
+    community, 
+    status: 'Pending', 
+    trafficHistory: Array(15).fill({ rx: 0, tx: 0, time: '', signal: 0, snr: 0 }),
     lastRx: null, lastTx: null,
     uptime: 0, signal: 0, ccq: 0, clients: 0, noise: -100, snr: 0,
     lat: lat ? parseFloat(lat) : 32.6245, 
@@ -72,11 +77,11 @@ app.post('/api/devices', (req, res) => {
 });
 
 app.put('/api/devices/:ip', (req, res) => {
-  const { name, community } = req.body;
+  const { name, community, clientIp } = req.body;
   const devices = getDevices();
   const index = devices.findIndex(d => d.ip === req.params.ip);
   if (index === -1) return res.status(404).json({ error: 'No encontrado' });
-  devices[index] = { ...devices[index], name, community };
+  devices[index] = { ...devices[index], name, community, clientIp: clientIp || devices[index].clientIp };
   saveDevices(devices);
   res.json({ message: 'Configuración actualizada' });
 });
@@ -100,31 +105,33 @@ app.get('/aviso-pago', (req, res) => {
 // --- Endpoint MikroTik: Suspender Cliente (Añadir a Walled Garden) ---
 app.post('/api/devices/:ip/suspend', async (req, res) => {
   const { ip } = req.params;
+  let devices = getDevices();
+  let index = devices.findIndex(d => d.ip === ip);
   
-  const mkClient = new RouterOSClient({ host: MK_HOST, user: MK_USER, password: MK_PASS });
+  if(index === -1) return res.status(404).json({ error: 'Antena no encontrada' });
+  
+  const targetIp = devices[index].clientIp;
+  if(!targetIp) return res.status(400).json({ error: 'No hay IP de cliente registrada para suspender' });
+
+  const mkClient = new RouterOSAPI({ host: MK_HOST, user: MK_USER, password: MK_PASS });
 
   try {
     await mkClient.connect();
-    // Agrega la IP a la lista de "morosos" en el MikroTik
-    await mkClient.menu('/ip/firewall/address-list').add({
-      list: 'morosos',
-      address: ip,
-      comment: `Suspendido desde UBI-MONITOR`
-    });
+    // Agrega la IP del cliente (Tenda) a la lista de morosos
+    await mkClient.write('/ip/firewall/address-list/add', [
+      '=list=morosos',
+      `=address=${targetIp}`,
+      '=comment=Suspendido desde UBI-MONITOR'
+    ]);
     mkClient.close();
 
-    // Actualiza la base de datos local
-    let devices = getDevices();
-    let index = devices.findIndex(d => d.ip === ip);
-    if(index !== -1) {
-      devices[index].suspended = true;
-      saveDevices(devices);
-      io.emit('device_updates', devices);
-    }
+    devices[index].suspended = true;
+    saveDevices(devices);
+    io.emit('device_updates', devices);
     
-    res.json({ success: true, message: 'Cliente bloqueado en MikroTik' });
+    res.json({ success: true, message: `Cliente ${targetIp} bloqueado en MikroTik` });
   } catch (err) {
-    console.error(`[MikroTik Error] Falla al suspender ${ip}:`, err);
+    console.error(`[MikroTik Error] Falla al suspender ${targetIp}:`, err);
     res.status(500).json({ error: 'Fallo MikroTik: ' + err.message });
   }
 });
@@ -132,34 +139,40 @@ app.post('/api/devices/:ip/suspend', async (req, res) => {
 // --- Endpoint MikroTik: Reactivar Cliente (Quitar de Walled Garden) ---
 app.post('/api/devices/:ip/resume', async (req, res) => {
   const { ip } = req.params;
+  let devices = getDevices();
+  let index = devices.findIndex(d => d.ip === ip);
   
-  const mkClient = new RouterOSClient({ host: MK_HOST, user: MK_USER, password: MK_PASS });
+  if(index === -1) return res.status(404).json({ error: 'Antena no encontrada' });
+  
+  const targetIp = devices[index].clientIp;
+  if(!targetIp) return res.status(400).json({ error: 'No hay IP de cliente registrada' });
+
+  const mkClient = new RouterOSAPI({ host: MK_HOST, user: MK_USER, password: MK_PASS });
 
   try {
     await mkClient.connect();
-    const menu = mkClient.menu('/ip/firewall/address-list');
     
-    // Busca si la IP está en la lista de morosos
-    const found = await menu.get({ address: ip, list: 'morosos' });
+    // Busca la IP en la lista de morosos
+    const found = await mkClient.write('/ip/firewall/address-list/print', [
+      `?address=${targetIp}`,
+      '?list=morosos'
+    ]);
     
-    // Si la encuentra, la elimina
+    // Si la encuentra, la elimina por su ID
     if (found && found.length > 0) {
-      await menu.remove(found[0]['.id']);
+      await mkClient.write('/ip/firewall/address-list/remove', [
+        `=.id=${found[0]['.id']}`
+      ]);
     }
     mkClient.close();
 
-    // Actualiza la base de datos local
-    let devices = getDevices();
-    let index = devices.findIndex(d => d.ip === ip);
-    if(index !== -1) {
-      devices[index].suspended = false;
-      saveDevices(devices);
-      io.emit('device_updates', devices);
-    }
+    devices[index].suspended = false;
+    saveDevices(devices);
+    io.emit('device_updates', devices);
     
-    res.json({ success: true, message: 'Cliente reactivado en MikroTik' });
+    res.json({ success: true, message: `Cliente ${targetIp} reactivado en MikroTik` });
   } catch (err) {
-    console.error(`[MikroTik Error] Falla al reactivar ${ip}:`, err);
+    console.error(`[MikroTik Error] Falla al reactivar ${targetIp}:`, err);
     res.status(500).json({ error: 'Fallo MikroTik: ' + err.message });
   }
 });
@@ -244,7 +257,7 @@ setInterval(async () => {
             dev.snr = dev.signal - dev.noise;
           }
 
-          // Historial Unificado (Tráfico + Telemetría RF)
+          // Historial Unificado
           const now = new Date();
           const timeLabel = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
           
