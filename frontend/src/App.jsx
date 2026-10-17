@@ -17,8 +17,8 @@ function App() {
   const [isKioskMode, setIsKioskMode] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL'); 
-  
+  const [statusFilter, setStatusFilter] = useState('ONLINE');
+
   const [expandedRows, setExpandedRows] = useState({});
   const prevOfflineCount = useRef(0);
 

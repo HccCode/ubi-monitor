@@ -75,12 +75,24 @@ app.post('/api/devices', (req, res) => {
   res.status(201).json({ message: 'Nodo provisionado' });
 });
 
+// Endpoint actualizado para edición completa (soporta IP de Tenda, Padre y GPS)
 app.put('/api/devices/:ip', (req, res) => {
-  const { name, community, clientIp } = req.body;
+  const { name, community, clientIp, parentIp, lat, lng } = req.body;
   const devices = getDevices();
   const index = devices.findIndex(d => d.ip === req.params.ip);
+  
   if (index === -1) return res.status(404).json({ error: 'No encontrado' });
-  devices[index] = { ...devices[index], name, community, clientIp: clientIp || devices[index].clientIp };
+  
+  devices[index] = { 
+    ...devices[index], 
+    name: name || devices[index].name, 
+    community: community || devices[index].community, 
+    clientIp: clientIp !== undefined ? clientIp : devices[index].clientIp,
+    parentIp: parentIp !== undefined ? parentIp : devices[index].parentIp,
+    lat: lat ? parseFloat(lat) : devices[index].lat,
+    lng: lng ? parseFloat(lng) : devices[index].lng
+  };
+  
   saveDevices(devices);
   res.json({ message: 'Configuración actualizada' });
 });
@@ -94,11 +106,6 @@ app.delete('/api/devices/:ip', (req, res) => {
 
 app.get('/api/settings/snmp', (req, res) => res.json(getSettings()));
 app.put('/api/settings/snmp', (req, res) => { saveSettings(req.body); res.json({ message: 'Ajustes actualizados' }); });
-
-// --- PORTAL CAUTIVO HTML (Walled Garden) ---
-app.get('/aviso-pago', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'aviso-pago.html'));
-});
 
 // --- Endpoint MikroTik: Suspender Cliente ---
 app.post('/api/devices/:ip/suspend', async (req, res) => {
