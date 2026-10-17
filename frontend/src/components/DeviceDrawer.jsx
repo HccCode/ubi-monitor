@@ -20,7 +20,7 @@ export default function DeviceDrawer({ device, onClose }) {
       const res = await fetch(`http://localhost:3001/api/devices/${device.ip}/speedtest`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: 'admdin', password: 'Pro409357' })
+        body: JSON.stringify({ username: 'admin', password: 'Pro029240937' })
       });
       const data = await res.json();
       if(data.success) setSpeedResult(data);
@@ -38,8 +38,8 @@ export default function DeviceDrawer({ device, onClose }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           username: 'admin', 
-          password: 'Pro409357', 
-          serverIp: '192.168.0.119' // <-- CAMBIA ESTO por la IP local de tu PC/Servidor Node.js
+          password: 'Pro029240937', 
+          serverIp: '10.4.193.55' // <-- CAMBIA ESTO por la IP local de tu PC/Servidor Node.js
         })
       });
     } catch (e) { console.error(e); }

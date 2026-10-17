@@ -123,7 +123,7 @@ app.post('/api/devices/:ip/suspend', (req, res) => {
       console.log(`[SSH Error] Falla al suspender ${ip}: ${err.message}`);
       res.status(500).json({ error: 'Fallo SSH: ' + err.message }); 
     }
-  }).connect({ host: ip, port: 22, username: username || 'ubnt', password: password || 'Pro409357', readyTimeout: 5000 });
+  }).connect({ host: ip, port: 22, username: username || 'admin', password: password || 'Pro029240937', readyTimeout: 5000 });
 });
 
 // --- Endpoint SSH: Reactivar Cliente (Limpiar iptables) BLINDADO ---
@@ -158,7 +158,7 @@ app.post('/api/devices/:ip/resume', (req, res) => {
       console.log(`[SSH Error] Falla al reactivar ${ip}: ${err.message}`);
       res.status(500).json({ error: 'Fallo SSH: ' + err.message }); 
     }
-  }).connect({ host: ip, port: 22, username: username || 'ubnt', password: password || 'Pro409357', readyTimeout: 5000 });
+  }).connect({ host: ip, port: 22, username: username || 'admin', password: password || 'Pro029240937', readyTimeout: 5000 });
 });
 
 // --- Endpoint Especial: Speedtest por SSH ---
@@ -183,7 +183,7 @@ app.post('/api/devices/:ip/speedtest', (req, res) => {
       console.log(`[SSH Error] Falla al auditar ${ip}: ${err.message}`);
       res.status(500).json({ error: 'Fallo de conexión SSH: ' + err.message });
     }
-  }).connect({ host: ip, port: 22, username: username || 'admin', password: password || 'Pro409357', readyTimeout: 5000 });
+  }).connect({ host: ip, port: 22, username: username || 'admin', password: password || 'Pro029240937', readyTimeout: 5000 });
 });
 
 io.on('connection', (socket) => { socket.emit('device_updates', getDevices()); });

@@ -1,1 +1,502 @@
-[]
+[
+  {
+    "ip": "10.1.3.91",
+    "name": "Casa - Memel",
+    "community": "public",
+    "status": "Online",
+    "trafficHistory": [
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:07",
+        "signal": -48,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:17",
+        "signal": -48,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:27",
+        "signal": -48,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:37",
+        "signal": -48,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:47",
+        "signal": -48,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:57",
+        "signal": -48,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:07",
+        "signal": -47,
+        "snr": 55
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:17",
+        "signal": -47,
+        "snr": 55
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:27",
+        "signal": -48,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:37",
+        "signal": -48,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:47",
+        "signal": -48,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:57",
+        "signal": -48,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:07",
+        "signal": -47,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:17",
+        "signal": -47,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:27",
+        "signal": -48,
+        "snr": 53
+      }
+    ],
+    "lastRx": 104,
+    "lastTx": 104,
+    "uptime": 19819,
+    "signal": -48,
+    "ccq": 33,
+    "clients": 1,
+    "noise": -101,
+    "snr": 53,
+    "lat": 32.5502965,
+    "lng": -115.0723223,
+    "suspended": false,
+    "parentIp": "10.1.3.99"
+  },
+  {
+    "ip": "10.1.3.90",
+    "name": "Traila - Daniela",
+    "community": "public",
+    "status": "Online",
+    "trafficHistory": [
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:07",
+        "signal": -49,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:17",
+        "signal": -49,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:27",
+        "signal": -50,
+        "snr": 41
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:37",
+        "signal": -50,
+        "snr": 41
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:47",
+        "signal": -50,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:57",
+        "signal": -50,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:07",
+        "signal": -50,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:17",
+        "signal": -50,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:27",
+        "signal": -49,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:37",
+        "signal": -49,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:47",
+        "signal": -49,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:57",
+        "signal": -49,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:07",
+        "signal": -49,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:17",
+        "signal": -49,
+        "snr": 42
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:27",
+        "signal": -49,
+        "snr": 42
+      }
+    ],
+    "lastRx": 104,
+    "lastTx": 104,
+    "uptime": 46232,
+    "signal": -49,
+    "ccq": 33,
+    "clients": 1,
+    "noise": -91,
+    "snr": 42,
+    "lat": 32.5502757,
+    "lng": -115.0703225,
+    "suspended": false,
+    "parentIp": "10.1.3.99"
+  },
+  {
+    "ip": "10.1.3.93",
+    "name": "Traila - Hector",
+    "community": "public",
+    "status": "Online",
+    "trafficHistory": [
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:07",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:17",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:27",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:37",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:47",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:57",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:07",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:17",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:27",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:37",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:47",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:57",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:07",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:17",
+        "signal": -37,
+        "snr": 61
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:27",
+        "signal": -37,
+        "snr": 61
+      }
+    ],
+    "lastRx": 204,
+    "lastTx": 204,
+    "uptime": 46226,
+    "signal": -37,
+    "ccq": 99,
+    "clients": 1,
+    "noise": -98,
+    "snr": 61,
+    "lat": 32.550183,
+    "lng": -115.0703057,
+    "suspended": false,
+    "parentIp": "10.1.3.99"
+  },
+  {
+    "ip": "10.1.3.94",
+    "name": "Traila - Elsa",
+    "community": "public",
+    "status": "Online",
+    "trafficHistory": [
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:07",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:17",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:27",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:37",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:47",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:21:57",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:07",
+        "signal": -59,
+        "snr": 28
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:17",
+        "signal": -59,
+        "snr": 28
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:27",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:37",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:47",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:22:57",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:07",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:17",
+        "signal": -60,
+        "snr": 27
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:23:27",
+        "signal": -60,
+        "snr": 27
+      }
+    ],
+    "lastRx": 104,
+    "lastTx": 104,
+    "uptime": 2660,
+    "signal": -60,
+    "ccq": 33,
+    "clients": 1,
+    "noise": -87,
+    "snr": 27,
+    "lat": 32.551301985231945,
+    "lng": -115.07109962882757,
+    "suspended": false,
+    "parentIp": "10.1.3.99"
+  }
+]
