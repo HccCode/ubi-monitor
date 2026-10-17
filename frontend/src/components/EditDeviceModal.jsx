@@ -7,7 +7,6 @@ export default function EditDeviceModal({ device, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Enviamos el método PUT o PATCH a la API para actualizar
       await fetch(`http://localhost:3001/api/devices/${device.ip}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -21,22 +20,25 @@ export default function EditDeviceModal({ device, onClose }) {
 
   return (
     <div className="drawer-overlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={onClose}>
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '32px', width: '100%', maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
-        <h3 style={{ margin: '0 0 24px 0', fontWeight: '600', fontSize: '1.2rem' }}>Edit Node: {device.ip}</h3>
+      <div 
+        style={{ background: 'linear-gradient(145deg, rgba(20,20,20,0.95), rgba(10,10,10,0.98))', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '420px', boxShadow: '0 0 40px rgba(59, 130, 246, 0.1)' }} 
+        onClick={e => e.stopPropagation()}
+      >
+        <h3 style={{ margin: '0 0 8px 0', fontWeight: '600', fontSize: '1.5rem' }}>Configure Node</h3>
+        <p className="mono-cell" style={{ marginBottom: '32px' }}>{device.ip}</p>
         
-        <form onSubmit={handleSubmit}>
-          <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '8px' }}>IP Address (Read-Only)</label>
-          <input className="input" value={device.ip} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
-
-          <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '8px' }}>Hostname</label>
-          <input className="input" value={name} onChange={e => setName(e.target.value)} required />
-
-          <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '8px' }}>SNMP Community</label>
-          <input className="input" value={community} onChange={e => setCommunity(e.target.value)} required />
-
-          <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
-            <button type="button" className="btn-outline" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn" style={{ flex: 1, background: 'var(--unifi-blue)' }}>Save Changes</button>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>Hostname</label>
+            <input className="input" value={name} onChange={e => setName(e.target.value)} required />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>SNMP Community</label>
+            <input className="input" value={community} onChange={e => setCommunity(e.target.value)} required />
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+            <button type="button" className="btn-modern" style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }} onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn-modern" style={{ flex: 1, background: 'var(--accent)', color: '#fff' }}>Save Config</button>
           </div>
         </form>
       </div>

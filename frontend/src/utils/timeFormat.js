@@ -1,9 +1,16 @@
-export const formatUptime = (seconds) => {
-  if (!seconds || seconds === 0) return '00:00:00';
-  const d = Math.floor(seconds / (3600 * 24));
-  const h = Math.floor((seconds % (3600 * 24)) / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
+// frontend/src/utils/timeFormat.js
+export function formatUptime(totalSeconds) {
+  if (!totalSeconds) return "0s";
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+  let result = [];
+  if (days > 0) result.push(`${days}d`);
+  if (hours > 0) result.push(`${hours}h`);
+  if (minutes > 0) result.push(`${minutes}m`);
   
-  if (d > 0) return `${d}d ${h}h ${m}m`;
-  return `${h}h ${m}m`;
-};
+  if (result.length === 0) return `${totalSeconds}s`;
+  
+  return result.join(' ');
+}

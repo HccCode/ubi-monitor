@@ -12,8 +12,10 @@
   "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "net-snmp": "^3.26.3",
-    "socket.io": "^4.8.3"
+    "express": "^5.3.0",
+    "net-snmp": "^3.29.2",
+    "react-force-graph-2d": "^1.29.2",
+    "socket.io": "^4.8.4",
+    "ssh2": "^1.17.0"
   }
 }

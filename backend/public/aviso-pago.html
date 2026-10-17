@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aviso de Suspensión | WISP</title>
+  <style>
+    body { 
+      background: #050505; 
+      color: #fff; 
+      font-family: 'Inter', system-ui, sans-serif; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      height: 100vh; 
+      margin: 0; 
+      text-align: center; 
+    }
+    .card { 
+      background: rgba(244, 63, 94, 0.05); 
+      border: 1px solid rgba(244, 63, 94, 0.3); 
+      padding: 50px; 
+      border-radius: 24px; 
+      max-width: 450px; 
+      box-shadow: 0 0 60px rgba(244, 63, 94, 0.1); 
+      backdrop-filter: blur(10px);
+    }
+    h1 { 
+      color: #f43f5e; 
+      margin-top: 0; 
+      font-size: 2rem;
+      letter-spacing: -1px;
+    }
+    .btn { 
+      display: inline-block; 
+      background: #f43f5e; 
+      color: #fff; 
+      text-decoration: none; 
+      padding: 14px 28px; 
+      border-radius: 8px; 
+      margin-top: 30px; 
+      font-weight: 600; 
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: #e11d48;
+      transform: translateY(-2px);
+    }
+    .logo-container {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo-container">
+      <!-- Puedes cambiar este icono por el logo de tu empresa WISP -->
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    </div>
+    <h1>Servicio Suspendido</h1>
+    <p style="font-size: 1.1rem; line-height: 1.5; color: #e4e4e7;">Estimado cliente, su servicio de internet ha sido pausado temporalmente por un atraso en su facturación.</p>
+    <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 20px;">Por favor, regularice su pago para restablecer la conexión automáticamente y evitar cargos por reconexión.</p>
+    <a href="https://wa.me/526860000000" class="btn">Contactar a Soporte (WhatsApp)</a>
+  </div>
+</body>
+</html>
