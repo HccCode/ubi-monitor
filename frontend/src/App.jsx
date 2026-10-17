@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
+// Importamos componentes de Recharts para el Sparkline
+import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 import './App.css';
 
 import DeviceDrawer from './components/DeviceDrawer';
@@ -17,9 +19,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL'); 
   
-  // --- ESTADO PARA EL ÁRBOL COLAPSABLE ---
   const [expandedRows, setExpandedRows] = useState({});
-
   const prevOfflineCount = useRef(0);
 
   useEffect(() => {
@@ -40,7 +40,6 @@ function App() {
     prevOfflineCount.current = offlineCount;
   }, [offlineCount, isMuted]);
 
-  // Filtrado general
   const filteredDevices = devices.filter(dev => {
     const matchesSearch = dev.name.toLowerCase().includes(searchQuery.toLowerCase()) || dev.ip.includes(searchQuery);
     const matchesFilter = statusFilter === 'ALL' ||
@@ -52,26 +51,18 @@ function App() {
   const activeDevice = devices.find(d => d.ip === selectedIp);
   const isSearching = searchQuery.trim() !== '' || statusFilter !== 'ALL';
 
-  // --- LÓGICA DE CONSTRUCCIÓN DEL ÁRBOL ---
   const buildTree = (list) => {
     const childrenMap = {};
     const tree = [];
-    
-    // Agrupamos a los hijos por la IP de su padre
     list.forEach(d => {
       if (d.parentIp) {
         if (!childrenMap[d.parentIp]) childrenMap[d.parentIp] = [];
         childrenMap[d.parentIp].push(d);
       }
     });
-
-    // Identificamos las raíces (AP / Sectoriales que no tienen padre)
     list.forEach(d => {
-      if (!d.parentIp) {
-        tree.push({ ...d, children: childrenMap[d.ip] || [] });
-      }
+      if (!d.parentIp) tree.push({ ...d, children: childrenMap[d.ip] || [] });
     });
-
     return tree;
   };
 
@@ -80,18 +71,19 @@ function App() {
     setExpandedRows(prev => ({ ...prev, [ip]: !prev[ip] }));
   };
 
-  // --- MOTOR DE RENDERIZADO RECURSIVO ---
+  // --- MOTOR DE RENDERIZADO CON SPARKLINE ---
   const renderDeviceRow = (dev, level = 0) => {
     const isOnline = dev.status === 'Online';
     const hasChildren = dev.children && dev.children.length > 0;
     const isExpanded = expandedRows[dev.ip];
-    const signalColor = !isOnline ? 'var(--danger)' : (dev.signal < -75 ? 'var(--danger)' : dev.signal < -65 ? 'var(--warning)' : 'var(--success)');
     
-    // Renderizamos la fila actual
+    // Lógica de colores semánticos
+    const signalColor = !isOnline ? 'var(--danger)' : (dev.signal < -75 ? 'var(--danger)' : dev.signal < -65 ? 'var(--warning)' : 'var(--success)');
+    const historyData = dev.trafficHistory || [];
+
     const row = (
       <tr key={dev.ip} onClick={() => setSelectedIp(dev.ip)} className={!isOnline && !isMuted ? 'row-critical' : ''} style={{ cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <td style={{ fontWeight: '500', paddingLeft: `${level * 30 + 16}px`, display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Icono de Carpeta/Árbol */}
           {hasChildren ? (
             <button onClick={(e) => toggleRow(dev.ip, e)} style={{ background: 'transparent', border: '1px solid var(--glass-border)', color: 'var(--text-muted)', width: '24px', height: '24px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {isExpanded ? '−' : '+'}
@@ -108,16 +100,34 @@ function App() {
         </td>
         <td style={{ textAlign: 'right' }}>
           {isOnline ? (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
-              <div className="mono-cell" style={{ color: signalColor, width: '60px' }}>{dev.signal} dBm</div>
-              <div className="mono-cell" style={{ color: dev.ccq < 80 ? 'var(--danger)' : 'var(--accent)', width: '50px' }}>{dev.ccq}%</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '15px' }}>
+              
+              {/* MICRO-GRÁFICO (SPARKLINE DE SEÑAL) */}
+              <div style={{ width: '70px', height: '26px', opacity: 0.8 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={historyData}>
+                    <YAxis domain={['dataMin - 2', 'dataMax + 2']} hide />
+                    <Line type="monotone" dataKey="signal" stroke={signalColor} strokeWidth={2} dot={false} isAnimationActive={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* VALORES NUMÉRICOS */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '60px' }}>
+                <span className="mono-cell" style={{ color: signalColor, fontSize: '1.05rem', lineHeight: '1.1' }}>{dev.signal}</span>
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>SNR {dev.snr}dB</span>
+              </div>
+              <div style={{ width: '1px', height: '24px', background: 'var(--glass-border)' }}></div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '50px' }}>
+                <span className="mono-cell" style={{ color: dev.ccq < 80 ? 'var(--danger)' : 'var(--accent)', fontSize: '1.05rem', lineHeight: '1.1' }}>{dev.ccq}%</span>
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>CCQ</span>
+              </div>
             </div>
-          ) : <span className="mono-cell" style={{ color: 'var(--danger)' }}>ERR</span>}
+          ) : <span className="mono-cell" style={{ color: 'var(--danger)' }}>ERR_CONN</span>}
         </td>
       </tr>
     );
 
-    // Si tiene hijos y está expandido, renderizamos los hijos debajo
     let childrenRows = [];
     if (hasChildren && isExpanded) {
       childrenRows = dev.children.map(child => renderDeviceRow(child, level + 1));
@@ -159,16 +169,13 @@ function App() {
               <div style={{ overflowY: 'auto', height: '100%', paddingRight: '8px' }}>
                 <table className="ultra-table">
                   <thead style={{ position: 'sticky', top: 0, background: 'rgba(3,3,3,0.95)', backdropFilter: 'blur(10px)', zIndex: 5 }}>
-                    <tr><th>Estructura de Red (AP / CPE)</th><th>IP Address</th><th>Estado</th><th style={{ textAlign: 'right' }}>Salud (Señal / CCQ)</th></tr>
+                    <tr><th>Estructura de Red</th><th>IP Address</th><th>Estado</th><th style={{ textAlign: 'right' }}>Tendencia y Salud RF</th></tr>
                   </thead>
                   <tbody>
                     {filteredDevices.length === 0 ? (
                       <tr><td colSpan="4" style={{ textAlign: 'center', padding: '80px', color: 'var(--text-muted)' }}>Sin equipos</td></tr>
                     ) : (
-                      // Si el usuario está buscando, aplanamos la lista. Si no, mostramos el árbol.
-                      isSearching 
-                        ? filteredDevices.map(dev => renderDeviceRow(dev, 0))
-                        : treeData.map(rootNode => renderDeviceRow(rootNode, 0))
+                      isSearching ? filteredDevices.map(dev => renderDeviceRow(dev, 0)) : treeData.map(rootNode => renderDeviceRow(rootNode, 0))
                     )}
                   </tbody>
                 </table>

@@ -46,20 +46,19 @@ const saveSettings = (settings) => fs.writeFileSync(settingsFilePath, JSON.strin
 
 // --- Endpoints CRUD Básicos ---
 app.post('/api/devices', (req, res) => {
-  // Recibimos lat, lng y parentIp desde el nuevo modal
   const { ip, name, community, lat, lng, parentIp } = req.body;
   const devices = getDevices();
   if (devices.find(d => d.ip === ip)) return res.status(400).json({ error: 'IP ya existe' });
   
   devices.push({ 
     ip, name, community, status: 'Pending', 
-    trafficHistory: Array(15).fill({ rx: 0, tx: 0, time: '' }), 
+    trafficHistory: Array(15).fill({ rx: 0, tx: 0, time: '', signal: 0, snr: 0 }), // Historial extendido
     lastRx: null, lastTx: null,
     uptime: 0, signal: 0, ccq: 0, clients: 0, noise: -100, snr: 0,
     lat: lat ? parseFloat(lat) : 32.6245, 
     lng: lng ? parseFloat(lng) : -115.4523,
     suspended: false,
-    parentIp: parentIp || null // <-- Propiedad clave para el Árbol Colapsable
+    parentIp: parentIp || null
   });
   
   saveDevices(devices);
@@ -79,7 +78,6 @@ app.put('/api/devices/:ip', (req, res) => {
 app.delete('/api/devices/:ip', (req, res) => {
   let devices = getDevices();
   devices = devices.filter(d => d.ip !== req.params.ip);
-  // También deberíamos desvincular o eliminar los hijos, pero por ahora solo quitamos el nodo
   saveDevices(devices);
   res.json({ message: 'Nodo revocado' });
 });
@@ -125,7 +123,7 @@ app.post('/api/devices/:ip/suspend', (req, res) => {
       console.log(`[SSH Error] Falla al suspender ${ip}: ${err.message}`);
       res.status(500).json({ error: 'Fallo SSH: ' + err.message }); 
     }
-  }).connect({ host: ip, port: 22, username: username || 'ubnt', password: password || 'ubnt', readyTimeout: 5000 });
+  }).connect({ host: ip, port: 22, username: username || 'ubnt', password: password || 'Pro409357', readyTimeout: 5000 });
 });
 
 // --- Endpoint SSH: Reactivar Cliente (Limpiar iptables) BLINDADO ---
@@ -160,7 +158,7 @@ app.post('/api/devices/:ip/resume', (req, res) => {
       console.log(`[SSH Error] Falla al reactivar ${ip}: ${err.message}`);
       res.status(500).json({ error: 'Fallo SSH: ' + err.message }); 
     }
-  }).connect({ host: ip, port: 22, username: username || 'ubnt', password: password || 'ubnt', readyTimeout: 5000 });
+  }).connect({ host: ip, port: 22, username: username || 'ubnt', password: password || 'Pro409357', readyTimeout: 5000 });
 });
 
 // --- Endpoint Especial: Speedtest por SSH ---
@@ -185,7 +183,7 @@ app.post('/api/devices/:ip/speedtest', (req, res) => {
       console.log(`[SSH Error] Falla al auditar ${ip}: ${err.message}`);
       res.status(500).json({ error: 'Fallo de conexión SSH: ' + err.message });
     }
-  }).connect({ host: ip, port: 22, username: username || 'ubnt', password: password || 'ubnt', readyTimeout: 5000 });
+  }).connect({ host: ip, port: 22, username: username || 'admin', password: password || 'Pro409357', readyTimeout: 5000 });
 });
 
 io.on('connection', (socket) => { socket.emit('device_updates', getDevices()); });
@@ -223,19 +221,14 @@ setInterval(async () => {
 
           if (!snmp.isVarbindError(varbinds[0])) dev.uptime = Math.floor(varbinds[0].value / 100);
 
+          let currentRxMbps = 0; let currentTxMbps = 0;
           if (!snmp.isVarbindError(varbinds[1]) && !snmp.isVarbindError(varbinds[2])) {
             const currentRx = varbinds[1].value; const currentTx = varbinds[2].value;
             if (dev.lastRx !== null && dev.lastTx !== null) {
               let rxDelta = currentRx - dev.lastRx; let txDelta = currentTx - dev.lastTx;
               if (rxDelta < 0) rxDelta += 4294967296; if (txDelta < 0) txDelta += 4294967296;
-              const rxMbps = ((rxDelta * 8) / (POLLING_INTERVAL_MS / 1000)) / 1000000;
-              const txMbps = ((txDelta * 8) / (POLLING_INTERVAL_MS / 1000)) / 1000000;
-              const now = new Date();
-              const timeLabel = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-              if (!dev.trafficHistory) dev.trafficHistory = Array(15).fill({ rx: 0, tx: 0, time: '' });
-              dev.trafficHistory.push({ rx: Number(rxMbps.toFixed(2)), tx: Number(txMbps.toFixed(2)), time: timeLabel });
-              if (dev.trafficHistory.length > 15) dev.trafficHistory.shift();
-              changed = true;
+              currentRxMbps = Number((((rxDelta * 8) / (POLLING_INTERVAL_MS / 1000)) / 1000000).toFixed(2));
+              currentTxMbps = Number((((txDelta * 8) / (POLLING_INTERVAL_MS / 1000)) / 1000000).toFixed(2));
             }
             dev.lastRx = currentRx; dev.lastTx = currentTx;
           }
@@ -246,8 +239,23 @@ setInterval(async () => {
           if (!snmp.isVarbindError(varbinds[6])) {
             dev.noise = varbinds[6].value;
             dev.snr = dev.signal - dev.noise;
-            changed = true;
           }
+
+          // Historial Unificado (Tráfico + Telemetría RF)
+          const now = new Date();
+          const timeLabel = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+          
+          if (!dev.trafficHistory) dev.trafficHistory = Array(15).fill({ rx: 0, tx: 0, time: '', signal: dev.signal || -100, snr: dev.snr || 0 });
+          dev.trafficHistory.push({ 
+            rx: currentRxMbps, 
+            tx: currentTxMbps, 
+            time: timeLabel,
+            signal: dev.signal || -100,
+            snr: dev.snr || 0
+          });
+          
+          if (dev.trafficHistory.length > 15) dev.trafficHistory.shift();
+          changed = true;
         }
         session.close();
         resolve();
