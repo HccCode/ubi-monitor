@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const snmp = require('net-snmp');
 const { Client } = require('ssh2');
-const { RouterOSAPI } = require('node-routeros'); // Clase correcta para la API
+const { RouterOSAPI } = require('node-routeros');
 
 const app = express();
 app.use(cors());
@@ -28,9 +28,9 @@ const OID_UBNT_STAS = "1.3.6.1.4.1.41112.1.4.5.1.15.1";
 const OID_UBNT_NOISE = "1.3.6.1.4.1.41112.1.4.5.1.8.1";
 
 // Configuración de tu Router Core MikroTik
-const MK_HOST = '192.168.2.1';  // IP de tu MikroTik
-const MK_USER = 'Procam';       // Usuario de MikroTik
-const MK_PASS = 'Pro029240937'; // Contraseña de MikroTik
+const MK_HOST = '192.168.2.1';
+const MK_USER = 'Procam';
+const MK_PASS = 'Pro029240937';
 
 const getDevices = () => {
   try {
@@ -52,7 +52,6 @@ const saveSettings = (settings) => fs.writeFileSync(settingsFilePath, JSON.strin
 
 // --- Endpoints CRUD Básicos ---
 app.post('/api/devices', (req, res) => {
-  // Recibimos ip (gestión Ubiquiti) y clientIp (servicio Tenda)
   const { ip, clientIp, name, community, lat, lng, parentIp } = req.body;
   const devices = getDevices();
   if (devices.find(d => d.ip === ip)) return res.status(400).json({ error: 'IP ya existe' });
@@ -96,13 +95,12 @@ app.delete('/api/devices/:ip', (req, res) => {
 app.get('/api/settings/snmp', (req, res) => res.json(getSettings()));
 app.put('/api/settings/snmp', (req, res) => { saveSettings(req.body); res.json({ message: 'Ajustes actualizados' }); });
 
-
 // --- PORTAL CAUTIVO HTML (Walled Garden) ---
 app.get('/aviso-pago', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'aviso-pago.html'));
 });
 
-// --- Endpoint MikroTik: Suspender Cliente (Añadir a Walled Garden) ---
+// --- Endpoint MikroTik: Suspender Cliente ---
 app.post('/api/devices/:ip/suspend', async (req, res) => {
   const { ip } = req.params;
   let devices = getDevices();
@@ -117,7 +115,6 @@ app.post('/api/devices/:ip/suspend', async (req, res) => {
 
   try {
     await mkClient.connect();
-    // Agrega la IP del cliente (Tenda) a la lista de morosos
     await mkClient.write('/ip/firewall/address-list/add', [
       '=list=morosos',
       `=address=${targetIp}`,
@@ -131,12 +128,11 @@ app.post('/api/devices/:ip/suspend', async (req, res) => {
     
     res.json({ success: true, message: `Cliente ${targetIp} bloqueado en MikroTik` });
   } catch (err) {
-    console.error(`[MikroTik Error] Falla al suspender ${targetIp}:`, err);
     res.status(500).json({ error: 'Fallo MikroTik: ' + err.message });
   }
 });
 
-// --- Endpoint MikroTik: Reactivar Cliente (Quitar de Walled Garden) ---
+// --- Endpoint MikroTik: Reactivar Cliente ---
 app.post('/api/devices/:ip/resume', async (req, res) => {
   const { ip } = req.params;
   let devices = getDevices();
@@ -151,14 +147,11 @@ app.post('/api/devices/:ip/resume', async (req, res) => {
 
   try {
     await mkClient.connect();
-    
-    // Busca la IP en la lista de morosos
     const found = await mkClient.write('/ip/firewall/address-list/print', [
       `?address=${targetIp}`,
       '?list=morosos'
     ]);
     
-    // Si la encuentra, la elimina por su ID
     if (found && found.length > 0) {
       await mkClient.write('/ip/firewall/address-list/remove', [
         `=.id=${found[0]['.id']}`
@@ -172,7 +165,6 @@ app.post('/api/devices/:ip/resume', async (req, res) => {
     
     res.json({ success: true, message: `Cliente ${targetIp} reactivado en MikroTik` });
   } catch (err) {
-    console.error(`[MikroTik Error] Falla al reactivar ${targetIp}:`, err);
     res.status(500).json({ error: 'Fallo MikroTik: ' + err.message });
   }
 });
@@ -196,7 +188,6 @@ app.post('/api/devices/:ip/speedtest', (req, res) => {
   }).on('error', (err) => {
     if (!responded) {
       responded = true;
-      console.log(`[SSH Error] Falla al auditar ${ip}: ${err.message}`);
       res.status(500).json({ error: 'Fallo de conexión SSH: ' + err.message });
     }
   }).connect({ host: ip, port: 22, username: username || 'admin', password: password || 'Pro029240937', readyTimeout: 5000 });
@@ -257,7 +248,6 @@ setInterval(async () => {
             dev.snr = dev.signal - dev.noise;
           }
 
-          // Historial Unificado
           const now = new Date();
           const timeLabel = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
           
