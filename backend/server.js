@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const snmp = require('net-snmp');
 const { Client } = require('ssh2');
+const { RouterOSClient } = require('node-routeros');
 
 const app = express();
 app.use(cors());
@@ -25,6 +26,11 @@ const OID_UBNT_SIGNAL = "1.3.6.1.4.1.41112.1.4.5.1.5.1";
 const OID_UBNT_CCQ = "1.3.6.1.4.1.41112.1.4.5.1.7.1";    
 const OID_UBNT_STAS = "1.3.6.1.4.1.41112.1.4.5.1.15.1";  
 const OID_UBNT_NOISE = "1.3.6.1.4.1.41112.1.4.5.1.8.1";
+
+// Configuración de tu Router Core MikroTik
+const MK_HOST = '192.168.2.1'; // IP de tu MikroTik
+const MK_USER = 'Procam';       // Usuario de MikroTik
+const MK_PASS = 'Pro029240937'; // Contraseña de MikroTik
 
 const getDevices = () => {
   try {
@@ -91,74 +97,71 @@ app.get('/aviso-pago', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'aviso-pago.html'));
 });
 
-// --- Endpoint SSH: Suspender Cliente (Inyectar iptables) BLINDADO ---
-app.post('/api/devices/:ip/suspend', (req, res) => {
+// --- Endpoint MikroTik: Suspender Cliente (Añadir a Walled Garden) ---
+app.post('/api/devices/:ip/suspend', async (req, res) => {
   const { ip } = req.params;
-  const { username, password, serverIp } = req.body;
   
-  const conn = new Client();
-  let responded = false; 
+  const mkClient = new RouterOSClient({ host: MK_HOST, user: MK_USER, password: MK_PASS });
 
-  conn.on('ready', () => {
-    const cmd = `iptables -t nat -I PREROUTING -p tcp --dport 80 -j DNAT --to-destination ${serverIp}:3001 && iptables -t nat -I PREROUTING -p tcp --dport 443 -j DNAT --to-destination ${serverIp}:3001`;
-    
-    conn.exec(cmd, (err, stream) => {
-      if (err) {
-        if (!responded) { responded = true; return res.status(500).json({ error: err.message }); }
-      }
-      
-      let devices = getDevices();
-      let index = devices.findIndex(d => d.ip === ip);
-      if(index !== -1) {
-        devices[index].suspended = true;
-        saveDevices(devices);
-        io.emit('device_updates', devices);
-      }
-      conn.end();
-      if (!responded) { responded = true; res.json({ success: true, message: 'Tráfico redirigido al Portal Cautivo' }); }
+  try {
+    await mkClient.connect();
+    // Agrega la IP a la lista de "morosos" en el MikroTik
+    await mkClient.menu('/ip/firewall/address-list').add({
+      list: 'morosos',
+      address: ip,
+      comment: `Suspendido desde UBI-MONITOR`
     });
-  }).on('error', (err) => {
-    if (!responded) { 
-      responded = true; 
-      console.log(`[SSH Error] Falla al suspender ${ip}: ${err.message}`);
-      res.status(500).json({ error: 'Fallo SSH: ' + err.message }); 
+    mkClient.close();
+
+    // Actualiza la base de datos local
+    let devices = getDevices();
+    let index = devices.findIndex(d => d.ip === ip);
+    if(index !== -1) {
+      devices[index].suspended = true;
+      saveDevices(devices);
+      io.emit('device_updates', devices);
     }
-  }).connect({ host: ip, port: 22, username: username || 'admin', password: password || 'Pro029240937', readyTimeout: 5000 });
+    
+    res.json({ success: true, message: 'Cliente bloqueado en MikroTik' });
+  } catch (err) {
+    console.error(`[MikroTik Error] Falla al suspender ${ip}:`, err);
+    res.status(500).json({ error: 'Fallo MikroTik: ' + err.message });
+  }
 });
 
-// --- Endpoint SSH: Reactivar Cliente (Limpiar iptables) BLINDADO ---
-app.post('/api/devices/:ip/resume', (req, res) => {
+// --- Endpoint MikroTik: Reactivar Cliente (Quitar de Walled Garden) ---
+app.post('/api/devices/:ip/resume', async (req, res) => {
   const { ip } = req.params;
-  const { username, password, serverIp } = req.body;
   
-  const conn = new Client();
-  let responded = false;
-  
-  conn.on('ready', () => {
-    const cmd = `iptables -t nat -D PREROUTING -p tcp --dport 80 -j DNAT --to-destination ${serverIp}:3001 && iptables -t nat -D PREROUTING -p tcp --dport 443 -j DNAT --to-destination ${serverIp}:3001`;
+  const mkClient = new RouterOSClient({ host: MK_HOST, user: MK_USER, password: MK_PASS });
+
+  try {
+    await mkClient.connect();
+    const menu = mkClient.menu('/ip/firewall/address-list');
     
-    conn.exec(cmd, (err, stream) => {
-      if (err) {
-        if (!responded) { responded = true; return res.status(500).json({ error: err.message }); }
-      }
-      
-      let devices = getDevices();
-      let index = devices.findIndex(d => d.ip === ip);
-      if(index !== -1) {
-        devices[index].suspended = false;
-        saveDevices(devices);
-        io.emit('device_updates', devices);
-      }
-      conn.end();
-      if (!responded) { responded = true; res.json({ success: true, message: 'Servicio restaurado' }); }
-    });
-  }).on('error', (err) => {
-    if (!responded) { 
-      responded = true; 
-      console.log(`[SSH Error] Falla al reactivar ${ip}: ${err.message}`);
-      res.status(500).json({ error: 'Fallo SSH: ' + err.message }); 
+    // Busca si la IP está en la lista de morosos
+    const found = await menu.get({ address: ip, list: 'morosos' });
+    
+    // Si la encuentra, la elimina
+    if (found && found.length > 0) {
+      await menu.remove(found[0]['.id']);
     }
-  }).connect({ host: ip, port: 22, username: username || 'admin', password: password || 'Pro029240937', readyTimeout: 5000 });
+    mkClient.close();
+
+    // Actualiza la base de datos local
+    let devices = getDevices();
+    let index = devices.findIndex(d => d.ip === ip);
+    if(index !== -1) {
+      devices[index].suspended = false;
+      saveDevices(devices);
+      io.emit('device_updates', devices);
+    }
+    
+    res.json({ success: true, message: 'Cliente reactivado en MikroTik' });
+  } catch (err) {
+    console.error(`[MikroTik Error] Falla al reactivar ${ip}:`, err);
+    res.status(500).json({ error: 'Fallo MikroTik: ' + err.message });
+  }
 });
 
 // --- Endpoint Especial: Speedtest por SSH ---
