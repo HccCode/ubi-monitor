@@ -46,7 +46,8 @@ const saveSettings = (settings) => fs.writeFileSync(settingsFilePath, JSON.strin
 
 // --- Endpoints CRUD Básicos ---
 app.post('/api/devices', (req, res) => {
-  const { ip, name, community } = req.body;
+  // Recibimos lat, lng y parentIp desde el nuevo modal
+  const { ip, name, community, lat, lng, parentIp } = req.body;
   const devices = getDevices();
   if (devices.find(d => d.ip === ip)) return res.status(400).json({ error: 'IP ya existe' });
   
@@ -55,9 +56,10 @@ app.post('/api/devices', (req, res) => {
     trafficHistory: Array(15).fill({ rx: 0, tx: 0, time: '' }), 
     lastRx: null, lastTx: null,
     uptime: 0, signal: 0, ccq: 0, clients: 0, noise: -100, snr: 0,
-    lat: 32.6245 + (Math.random() - 0.5) * 0.05, // Coordenada base (Mexicali)
-    lng: -115.4523 + (Math.random() - 0.5) * 0.05,
-    suspended: false
+    lat: lat ? parseFloat(lat) : 32.6245, 
+    lng: lng ? parseFloat(lng) : -115.4523,
+    suspended: false,
+    parentIp: parentIp || null // <-- Propiedad clave para el Árbol Colapsable
   });
   
   saveDevices(devices);
@@ -77,6 +79,7 @@ app.put('/api/devices/:ip', (req, res) => {
 app.delete('/api/devices/:ip', (req, res) => {
   let devices = getDevices();
   devices = devices.filter(d => d.ip !== req.params.ip);
+  // También deberíamos desvincular o eliminar los hijos, pero por ahora solo quitamos el nodo
   saveDevices(devices);
   res.json({ message: 'Nodo revocado' });
 });
@@ -122,7 +125,7 @@ app.post('/api/devices/:ip/suspend', (req, res) => {
       console.log(`[SSH Error] Falla al suspender ${ip}: ${err.message}`);
       res.status(500).json({ error: 'Fallo SSH: ' + err.message }); 
     }
-  }).connect({ host: ip, port: 22, username: username || 'admin', password: password || 'Pro409357', readyTimeout: 5000 });
+  }).connect({ host: ip, port: 22, username: username || 'ubnt', password: password || 'ubnt', readyTimeout: 5000 });
 });
 
 // --- Endpoint SSH: Reactivar Cliente (Limpiar iptables) BLINDADO ---

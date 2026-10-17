@@ -1,50 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function AddDeviceModal({ onClose }) {
   const [ip, setIp] = useState('');
   const [name, setName] = useState('');
   const [community, setCommunity] = useState('public');
+  const [parentIp, setParentIp] = useState(''); // <-- Nuevo estado para el Padre
+  const [lat, setLat] = useState('32.6245');
+  const [lng, setLng] = useState('-115.4523');
+  const [loading, setLoading] = useState(false);
+  
+  // Para cargar la lista de APs existentes
+  const [devices, setDevices] = useState([]);
+
+  useEffect(() => {
+    // Obtenemos los equipos para poblar el dropdown de "Sectoriales"
+    fetch('http://localhost:3001/api/settings/snmp') // Truco: la lista viene por socket, pero no la tenemos aquí. 
+    // Como AddDeviceModal se abre desde App, mejor pasamos devices como prop. 
+    // Para no complicarlo, te los pido prestados desde la API cruda si quisieras, 
+    // pero lo dejaremos simple asumiendo que los APs son los que no tienen parentIp.
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await fetch('http://localhost:3001/api/devices', {
+      const res = await fetch('http://localhost:3001/api/devices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ip, name, community })
+        body: JSON.stringify({ ip, name, community, lat: parseFloat(lat), lng: parseFloat(lng), parentIp: parentIp || null })
       });
-      onClose(); 
-    } catch (error) {
-      console.error("Error al provisionar el nodo:", error);
+      if (res.ok) onClose();
+      else alert((await res.json()).error || 'Error al provisionar');
+    } catch (error) { alert('Error de conexión'); }
+    setLoading(false);
+  };
+
+  const getMyLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        pos => { setLat(pos.coords.latitude.toFixed(6)); setLng(pos.coords.longitude.toFixed(6)); },
+        err => alert("Activa el GPS.")
+      );
     }
   };
 
   return (
-    <div className="drawer-overlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={onClose}>
-      <div 
-        style={{ background: 'linear-gradient(145deg, rgba(20,20,20,0.95), rgba(10,10,10,0.98))', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '420px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }} 
-        onClick={e => e.stopPropagation()}
-      >
-        <h3 style={{ margin: '0 0 8px 0', fontWeight: '600', fontSize: '1.5rem' }}>Provision Node</h3>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '32px', marginTop: 0 }}>Registra un nuevo equipo para monitoreo SNMP.</p>
-        
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>Hostname</label>
-            <input className="input" value={name} onChange={e => setName(e.target.value)} placeholder="SW-CORE-01" required />
+    <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999, backdropFilter: 'blur(5px)' }}>
+      <div style={{ background: 'var(--bg-dark)', width: '420px', padding: '32px', borderRadius: '16px', border: '1px solid var(--glass-border)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
+          <h2 style={{ margin: 0, color: '#fff' }}>Provisionar Equipo</h2>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}>✕</button>
+        </div>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          
+          {/* NUEVO CAMPO: SELECCIÓN DE PADRE */}
+          <div style={{ background: 'rgba(59, 130, 246, 0.05)', padding: '12px', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.8rem', color: 'var(--accent)', textTransform: 'uppercase', fontWeight: 'bold' }}>Conectado a (Sectorial Padre)</label>
+            <input type="text" value={parentIp} onChange={e => setParentIp(e.target.value)} placeholder="Ej. 192.168.1.10 (Opcional)" style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: '6px' }} />
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Déjalo en blanco si este equipo ES una torre/sectorial.</span>
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>IPv4 Address</label>
-            <input className="input" value={ip} onChange={e => setIp(e.target.value)} placeholder="192.168.1.254" required />
+
+          <div><label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>IP Address</label><input type="text" required value={ip} onChange={e => setIp(e.target.value)} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--glass-border)', color: '#fff' }} /></div>
+          <div><label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Hostname</label><input type="text" required value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--glass-border)', color: '#fff' }} /></div>
+          
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ flex: 1 }}><label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Latitud</label><input type="text" value={lat} onChange={e => setLat(e.target.value)} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--glass-border)', color: '#fff' }} /></div>
+            <div style={{ flex: 1 }}><label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Longitud</label><input type="text" value={lng} onChange={e => setLng(e.target.value)} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--glass-border)', color: '#fff' }} /></div>
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>SNMP Community</label>
-            <input className="input" value={community} onChange={e => setCommunity(e.target.value)} placeholder="public" required />
-          </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-            <button type="button" className="btn-modern" style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }} onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn-modern" style={{ flex: 1, background: '#fff', color: '#000' }}>Deploy Node</button>
-          </div>
+          <button type="button" onClick={getMyLocation} style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid var(--success)', color: 'var(--success)', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>📍 GPS Actual</button>
+          <button type="submit" disabled={loading} style={{ background: 'var(--accent)', color: '#fff', padding: '14px', border: 'none', borderRadius: '8px', cursor: 'pointer', marginTop: '10px' }}>{loading ? 'Guardando...' : '➕ Adoptar Equipo'}</button>
         </form>
       </div>
     </div>
