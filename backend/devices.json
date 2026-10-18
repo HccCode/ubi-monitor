@@ -8,117 +8,117 @@
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:14:42",
-        "signal": -47,
-        "snr": 55
+        "time": "23:57:35",
+        "signal": -56,
+        "snr": 45
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:14:52",
-        "signal": -48,
-        "snr": 54
+        "time": "23:57:46",
+        "signal": -56,
+        "snr": 45
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:02",
-        "signal": -48,
-        "snr": 54
+        "time": "23:57:57",
+        "signal": -55,
+        "snr": 46
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:12",
-        "signal": -47,
-        "snr": 55
+        "time": "23:58:05",
+        "signal": -55,
+        "snr": 46
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:22",
-        "signal": -47,
-        "snr": 55
+        "time": "23:58:16",
+        "signal": -55,
+        "snr": 46
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:32",
-        "signal": -48,
-        "snr": 53
+        "time": "23:58:26",
+        "signal": -55,
+        "snr": 46
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:42",
-        "signal": -48,
-        "snr": 53
+        "time": "23:58:36",
+        "signal": -54,
+        "snr": 47
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:52",
-        "signal": -48,
-        "snr": 54
+        "time": "23:58:46",
+        "signal": -54,
+        "snr": 47
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:02",
-        "signal": -48,
-        "snr": 54
+        "time": "23:59:01",
+        "signal": -53,
+        "snr": 48
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:12",
-        "signal": -48,
-        "snr": 54
+        "time": "23:59:06",
+        "signal": -53,
+        "snr": 48
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:22",
-        "signal": -48,
-        "snr": 54
+        "time": "23:59:16",
+        "signal": -53,
+        "snr": 48
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:32",
-        "signal": -48,
-        "snr": 54
+        "time": "23:59:26",
+        "signal": -53,
+        "snr": 48
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:42",
-        "signal": -48,
-        "snr": 54
+        "time": "23:59:36",
+        "signal": -53,
+        "snr": 48
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:52",
-        "signal": -48,
-        "snr": 54
+        "time": "23:59:46",
+        "signal": -54,
+        "snr": 47
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:17:02",
-        "signal": -48,
-        "snr": 54
+        "time": "23:59:56",
+        "signal": -54,
+        "snr": 47
       }
     ],
     "lastRx": 104,
     "lastTx": 104,
-    "uptime": 11151,
-    "signal": -48,
+    "uptime": 49725,
+    "signal": -54,
     "ccq": 33,
     "clients": 1,
-    "noise": -102,
-    "snr": 54,
+    "noise": -101,
+    "snr": 47,
     "lat": 32.5502965,
     "lng": -115.0723223,
     "suspended": false,
@@ -133,117 +133,117 @@
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:14:42",
-        "signal": -50,
-        "snr": 41
+        "time": "23:57:35",
+        "signal": -57,
+        "snr": 34
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:14:52",
-        "signal": -49,
-        "snr": 42
+        "time": "23:57:45",
+        "signal": -57,
+        "snr": 34
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:02",
-        "signal": -49,
-        "snr": 42
+        "time": "23:57:57",
+        "signal": -56,
+        "snr": 35
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:12",
-        "signal": -49,
-        "snr": 42
+        "time": "23:58:05",
+        "signal": -56,
+        "snr": 35
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:22",
-        "signal": -49,
-        "snr": 42
+        "time": "23:58:16",
+        "signal": -56,
+        "snr": 35
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:32",
-        "signal": -50,
-        "snr": 41
+        "time": "23:58:26",
+        "signal": -56,
+        "snr": 35
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:42",
-        "signal": -50,
-        "snr": 41
+        "time": "23:58:36",
+        "signal": -57,
+        "snr": 34
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:52",
-        "signal": -49,
-        "snr": 42
+        "time": "23:58:46",
+        "signal": -57,
+        "snr": 34
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:02",
-        "signal": -49,
-        "snr": 42
+        "time": "23:58:56",
+        "signal": -56,
+        "snr": 34
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:12",
-        "signal": -50,
-        "snr": 41
+        "time": "23:59:06",
+        "signal": -56,
+        "snr": 34
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:22",
-        "signal": -50,
-        "snr": 41
+        "time": "23:59:16",
+        "signal": -56,
+        "snr": 35
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:32",
-        "signal": -49,
-        "snr": 42
+        "time": "23:59:26",
+        "signal": -56,
+        "snr": 35
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:42",
-        "signal": -49,
-        "snr": 42
+        "time": "23:59:36",
+        "signal": -56,
+        "snr": 35
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:52",
-        "signal": -50,
-        "snr": 41
+        "time": "23:59:46",
+        "signal": -56,
+        "snr": 35
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:17:02",
-        "signal": -50,
-        "snr": 41
+        "time": "23:59:56",
+        "signal": -56,
+        "snr": 35
       }
     ],
-    "lastRx": 104,
-    "lastTx": 104,
-    "uptime": 92637,
-    "signal": -50,
+    "lastRx": 25219,
+    "lastTx": 25219,
+    "uptime": 131222,
+    "signal": -56,
     "ccq": 33,
     "clients": 1,
     "noise": -91,
-    "snr": 41,
+    "snr": 35,
     "lat": 32.5502757,
     "lng": -115.0703225,
     "suspended": false,
@@ -258,117 +258,117 @@
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:14:42",
-        "signal": -37,
-        "snr": 61
+        "time": "23:57:36",
+        "signal": -43,
+        "snr": 55
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:14:52",
-        "signal": -37,
-        "snr": 61
+        "time": "23:57:45",
+        "signal": -43,
+        "snr": 55
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:02",
-        "signal": -37,
-        "snr": 61
+        "time": "23:57:57",
+        "signal": -44,
+        "snr": 54
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:12",
-        "signal": -38,
-        "snr": 60
+        "time": "23:58:05",
+        "signal": -44,
+        "snr": 54
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:22",
-        "signal": -38,
-        "snr": 60
+        "time": "23:58:16",
+        "signal": -44,
+        "snr": 54
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:32",
-        "signal": -38,
-        "snr": 60
+        "time": "23:58:25",
+        "signal": -44,
+        "snr": 54
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:42",
-        "signal": -38,
-        "snr": 60
+        "time": "23:58:36",
+        "signal": -43,
+        "snr": 55
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:52",
-        "signal": -37,
-        "snr": 61
+        "time": "23:58:46",
+        "signal": -43,
+        "snr": 55
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:02",
-        "signal": -37,
-        "snr": 61
+        "time": "23:58:56",
+        "signal": -44,
+        "snr": 54
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:12",
-        "signal": -38,
-        "snr": 60
+        "time": "23:59:06",
+        "signal": -44,
+        "snr": 54
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:22",
-        "signal": -38,
-        "snr": 60
+        "time": "23:59:16",
+        "signal": -43,
+        "snr": 55
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:32",
-        "signal": -37,
-        "snr": 61
+        "time": "23:59:26",
+        "signal": -43,
+        "snr": 55
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:42",
-        "signal": -37,
-        "snr": 61
+        "time": "23:59:36",
+        "signal": -44,
+        "snr": 54
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:52",
-        "signal": -37,
-        "snr": 61
+        "time": "23:59:46",
+        "signal": -44,
+        "snr": 54
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:17:02",
-        "signal": -37,
-        "snr": 61
+        "time": "23:59:56",
+        "signal": -44,
+        "snr": 54
       }
     ],
     "lastRx": 204,
     "lastTx": 204,
-    "uptime": 92630,
-    "signal": -37,
+    "uptime": 131214,
+    "signal": -44,
     "ccq": 99,
     "clients": 1,
     "noise": -98,
-    "snr": 61,
+    "snr": 54,
     "lat": 32.550183,
     "lng": -115.0703057,
     "suspended": false,
@@ -377,127 +377,253 @@
   {
     "ip": "10.1.3.94",
     "clientIp": "10.4.193.56",
-    "name": "Traila Elas",
+    "name": "Traila Elsa",
     "community": "public",
     "status": "Online",
     "trafficHistory": [
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:14:42",
-        "signal": -64,
-        "snr": 23
+        "time": "23:57:35",
+        "signal": -71,
+        "snr": 16
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:14:52",
-        "signal": -64,
-        "snr": 23
+        "time": "23:57:45",
+        "signal": -71,
+        "snr": 16
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:02",
-        "signal": -64,
-        "snr": 23
+        "time": "23:57:57",
+        "signal": -72,
+        "snr": 15
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:12",
-        "signal": -63,
-        "snr": 24
+        "time": "23:58:05",
+        "signal": -72,
+        "snr": 15
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:22",
-        "signal": -63,
-        "snr": 24
+        "time": "23:58:16",
+        "signal": -71,
+        "snr": 16
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:32",
-        "signal": -63,
-        "snr": 24
+        "time": "23:58:26",
+        "signal": -71,
+        "snr": 16
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:42",
-        "signal": -63,
-        "snr": 24
+        "time": "23:58:36",
+        "signal": -72,
+        "snr": 15
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:15:52",
-        "signal": -63,
-        "snr": 24
+        "time": "23:58:46",
+        "signal": -72,
+        "snr": 15
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:02",
-        "signal": -63,
-        "snr": 24
+        "time": "23:58:56",
+        "signal": -72,
+        "snr": 15
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:12",
-        "signal": -63,
-        "snr": 24
+        "time": "23:59:06",
+        "signal": -72,
+        "snr": 15
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:22",
-        "signal": -63,
-        "snr": 24
+        "time": "23:59:16",
+        "signal": -72,
+        "snr": 15
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:32",
-        "signal": -64,
-        "snr": 23
+        "time": "23:59:26",
+        "signal": -72,
+        "snr": 15
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:42",
-        "signal": -64,
-        "snr": 23
+        "time": "23:59:36",
+        "signal": -71,
+        "snr": 16
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:16:52",
-        "signal": -63,
-        "snr": 24
+        "time": "23:59:46",
+        "signal": -71,
+        "snr": 16
       },
       {
         "rx": 0,
         "tx": 0,
-        "time": "13:17:02",
-        "signal": -63,
-        "snr": 24
+        "time": "23:59:56",
+        "signal": -72,
+        "snr": 15
       }
     ],
     "lastRx": 104,
     "lastTx": 104,
-    "uptime": 4559,
-    "signal": -63,
+    "uptime": 4885,
+    "signal": -72,
     "ccq": 33,
     "clients": 1,
     "noise": -87,
-    "snr": 24,
-    "lat": 32.6245,
-    "lng": -115.4523,
+    "snr": 15,
+    "lat": 32.5513195,
+    "lng": -115.0711111,
     "suspended": false,
     "parentIp": "10.1.3.99"
+  },
+  {
+    "ip": "10.1.3.99",
+    "clientIp": "",
+    "name": "AP - LiteAP AC",
+    "community": "public",
+    "status": "Online",
+    "trafficHistory": [
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:57:35",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:57:45",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:57:57",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:58:05",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:58:16",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:58:25",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:58:36",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:58:46",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:58:56",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:59:06",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:59:16",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:59:26",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:59:36",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:59:46",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "23:59:56",
+        "signal": -61,
+        "snr": 33
+      }
+    ],
+    "lastRx": 104,
+    "lastTx": 104,
+    "uptime": 36617,
+    "signal": -61,
+    "ccq": 33,
+    "clients": 5,
+    "noise": -94,
+    "snr": 33,
+    "lat": 32.5512057,
+    "lng": -115.0715402,
+    "suspended": false,
+    "parentIp": ""
   }
 ]

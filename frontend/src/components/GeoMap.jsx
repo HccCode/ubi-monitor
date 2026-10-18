@@ -1,71 +1,104 @@
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// CSS para forzar que cualquier mapa libre se vuelva un oscuro "NOC"
+const darkMapStyle = {
+  height: '100%',
+  width: '100%',
+  background: '#0a0a0a',
+  filter: 'invert(100%) hue-rotate(180deg) brightness(85%) contrast(90%)', // Transforma OSM a Dark Mode gratis
+};
+
+// Ícono para la Antena Sectorial (AP) - Azul y más grande
+const apIcon = new L.DivIcon({
+  className: 'custom-icon',
+  html: '<div style="background: #3b82f6; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 15px #3b82f6; display: flex; justify-content: center; align-items: center;"><span style="font-size: 10px;">📡</span></div>',
+  iconSize: [22, 22]
+});
+
+// Ícono para el Cliente (CPE) - Depende de la calidad de señal
+const getCpeIcon = (signal, isOnline) => {
+  if (!isOnline) return new L.DivIcon({ className: 'custom-icon', html: `<div style="background: #ef4444; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 10px #ef4444;"></div>`, iconSize: [14, 14] });
+  
+  const color = signal < -75 ? '#ef4444' : signal < -65 ? '#f59e0b' : '#10b981';
+  return new L.DivIcon({
+    className: 'custom-icon',
+    html: `<div style="background: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff;"></div>`,
+    iconSize: [14, 14]
+  });
+};
 
 export default function GeoMap({ devices, onSelectDevice }) {
-  // Centro geográfico de Mexicali
-  const centerPosition = [32.6245, -115.4523];
+  // Centrar el mapa en el AP principal o en el primer nodo disponible
+  const centerNode = devices.find(d => !d.parentIp) || devices[0];
+  const center = centerNode ? [centerNode.lat, centerNode.lng] : [32.6245, -115.4523];
+
+  // Construir las líneas topológicas entre AP y CPEs
+  const topologicalLinks = [];
+  devices.forEach(dev => {
+    if (dev.parentIp) {
+      const parent = devices.find(d => d.ip === dev.parentIp);
+      if (parent) {
+        topologicalLinks.push({
+          positions: [[parent.lat, parent.lng], [dev.lat, dev.lng]],
+          color: dev.status === 'Online' ? 'rgba(59, 130, 246, 0.5)' : 'rgba(239, 68, 68, 0.5)'
+        });
+      }
+    }
+  });
 
   return (
-    <div style={{ height: '100%', width: '100%', position: 'relative' }}>
-      <div style={{ padding: '20px', position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000, background: 'rgba(3,3,3,0.8)', backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--glass-border)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h2 style={{ margin: '0 0 4px 0', fontSize: '1.8rem', color: '#fff', fontWeight: 600 }}>Geolocalización WISP</h2>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.85rem' }}>Visualización espacial de calidad de enlace (SNR)</p>
-          </div>
-          <div style={{ display: 'flex', gap: '15px', background: 'rgba(0,0,0,0.4)', padding: '10px 15px', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981' }}></div> SNR {'>'} 25
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fbbf24' }}></div> SNR 15-25
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f43f5e' }}></div> SNR {'<'} 15 / Offline
-            </div>
-          </div>
-        </div>
-      </div>
+    <div style={{ height: '100%', width: '100%', position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
+      {/* Aplicamos el filtro de inversión de color aquí */}
+      <div style={darkMapStyle}>
+        <MapContainer center={center} zoom={14} style={{ height: '100%', width: '100%' }}>
+          
+          {/* Servidor Libre de OpenStreetMap (Inmune a bloqueos) */}
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          />
+          
+          {/* Dibujar las líneas (Enlaces inalámbricos) */}
+          {topologicalLinks.map((line, idx) => (
+            <Polyline key={idx} positions={line.positions} color={line.color} weight={3} dashArray="5, 10" />
+          ))}
 
-      <MapContainer center={centerPosition} zoom={13} style={{ height: '100%', width: '100%', zIndex: 0 }}>
-        {/* Capa Dark Mode de CartoDB */}
-        <TileLayer
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-          attribution='Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
-        />
-
-        {devices.map((dev) => {
-          const lat = dev.lat || 32.6245;
-          const lng = dev.lng || -115.4523;
-          const isOnline = dev.status === 'Online';
-          const color = !isOnline ? '#f43f5e' : (dev.snr < 15 ? '#f43f5e' : dev.snr < 25 ? '#fbbf24' : '#10b981');
-
-          return (
-            <CircleMarker
-              key={dev.ip}
-              center={[lat, lng]}
-              radius={8}
-              pathOptions={{ fillColor: color, color: color, fillOpacity: 0.8, weight: 2 }}
-              eventHandlers={{ click: () => onSelectDevice(dev.ip) }}
-            >
-              <Popup className="noc-popup">
-                <div style={{ background: '#111', padding: '10px', borderRadius: '6px', color: '#fff', minWidth: '150px' }}>
-                  <strong style={{ display: 'block', fontSize: '1.1rem', marginBottom: '4px' }}>{dev.name}</strong>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{dev.ip}</span>
-                  <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #333', color: color, fontWeight: 'bold' }}>
-                    SNR: {dev.snr || '---'} dB
+          {/* Dibujar los Nodos */}
+          {devices.map(dev => {
+            const isAP = !dev.parentIp || (dev.children && dev.children.length > 0);
+            return (
+              <Marker 
+                key={dev.ip} 
+                position={[dev.lat, dev.lng]} 
+                icon={isAP ? apIcon : getCpeIcon(dev.signal, dev.status === 'Online')}
+                eventHandlers={{ click: () => onSelectDevice(dev.ip) }}
+              >
+                <Popup className="noc-popup">
+                  {/* Nota: En el Popup deshacemos el filtro de inversión para que el texto se lea blanco natural */}
+                  <div style={{ background: '#111', padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', filter: 'invert(100%) hue-rotate(180deg) brightness(110%)' }}>
+                    <h4 style={{ margin: '0 0 5px 0', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {isAP ? '📡' : '🏠'} {dev.name}
+                    </h4>
+                    <div style={{ fontSize: '0.85rem', opacity: 0.9 }}>
+                      <div><strong>IP:</strong> {dev.ip}</div>
+                      {dev.status === 'Online' ? (
+                        <>
+                          <div><strong>Señal:</strong> <span style={{ color: dev.signal < -75 ? '#ff4444' : '#00ff66', fontWeight: '600' }}>{dev.signal} dBm</span></div>
+                          <div><strong>CCQ:</strong> {dev.ccq}%</div>
+                        </>
+                      ) : (
+                        <div style={{ color: '#ff4444', fontWeight: 'bold', marginTop: '5px' }}>OFFLINE</div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Popup>
-            </CircleMarker>
-          );
-        })}
-      </MapContainer>
-      
-      <style>{`
-        .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .leaflet-popup-tip { display: none; }
-      `}</style>
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MapContainer>
+      </div>
     </div>
   );
 }

@@ -75,7 +75,7 @@ app.post('/api/devices', (req, res) => {
   res.status(201).json({ message: 'Nodo provisionado' });
 });
 
-// Endpoint actualizado para edición completa (soporta IP de Tenda, Padre y GPS)
+// Endpoint de actualización total (Nombre, SNMP, Tenda, Padre, GPS)
 app.put('/api/devices/:ip', (req, res) => {
   const { name, community, clientIp, parentIp, lat, lng } = req.body;
   const devices = getDevices();
@@ -106,6 +106,7 @@ app.delete('/api/devices/:ip', (req, res) => {
 
 app.get('/api/settings/snmp', (req, res) => res.json(getSettings()));
 app.put('/api/settings/snmp', (req, res) => { saveSettings(req.body); res.json({ message: 'Ajustes actualizados' }); });
+
 
 // --- Endpoint MikroTik: Suspender Cliente ---
 app.post('/api/devices/:ip/suspend', async (req, res) => {
