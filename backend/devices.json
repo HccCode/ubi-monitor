@@ -8,13 +8,6 @@
       {
         "rx": 0,
         "tx": 0,
-        "time": "23:57:35",
-        "signal": -56,
-        "snr": 45
-      },
-      {
-        "rx": 0,
-        "tx": 0,
         "time": "23:57:46",
         "signal": -56,
         "snr": 45
@@ -109,11 +102,18 @@
         "time": "23:59:56",
         "signal": -54,
         "snr": 47
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:00:06",
+        "signal": -54,
+        "snr": 47
       }
     ],
     "lastRx": 104,
     "lastTx": 104,
-    "uptime": 49725,
+    "uptime": 49745,
     "signal": -54,
     "ccq": 33,
     "clients": 1,
@@ -130,13 +130,6 @@
     "community": "public",
     "status": "Online",
     "trafficHistory": [
-      {
-        "rx": 0,
-        "tx": 0,
-        "time": "23:57:35",
-        "signal": -57,
-        "snr": 34
-      },
       {
         "rx": 0,
         "tx": 0,
@@ -234,6 +227,13 @@
         "time": "23:59:56",
         "signal": -56,
         "snr": 35
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:00:06",
+        "signal": -56,
+        "snr": 35
       }
     ],
     "lastRx": 25219,
@@ -255,13 +255,6 @@
     "community": "public",
     "status": "Online",
     "trafficHistory": [
-      {
-        "rx": 0,
-        "tx": 0,
-        "time": "23:57:36",
-        "signal": -43,
-        "snr": 55
-      },
       {
         "rx": 0,
         "tx": 0,
@@ -357,6 +350,13 @@
         "rx": 0,
         "tx": 0,
         "time": "23:59:56",
+        "signal": -44,
+        "snr": 54
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:00:06",
         "signal": -44,
         "snr": 54
       }
@@ -384,13 +384,6 @@
       {
         "rx": 0,
         "tx": 0,
-        "time": "23:57:35",
-        "signal": -71,
-        "snr": 16
-      },
-      {
-        "rx": 0,
-        "tx": 0,
         "time": "23:57:45",
         "signal": -71,
         "snr": 16
@@ -485,6 +478,13 @@
         "time": "23:59:56",
         "signal": -72,
         "snr": 15
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:00:06",
+        "signal": -72,
+        "snr": 15
       }
     ],
     "lastRx": 104,
@@ -507,13 +507,6 @@
     "community": "public",
     "status": "Online",
     "trafficHistory": [
-      {
-        "rx": 0,
-        "tx": 0,
-        "time": "23:57:35",
-        "signal": -61,
-        "snr": 33
-      },
       {
         "rx": 0,
         "tx": 0,
@@ -609,6 +602,13 @@
         "rx": 0,
         "tx": 0,
         "time": "23:59:56",
+        "signal": -61,
+        "snr": 33
+      },
+      {
+        "rx": 0,
+        "tx": 0,
+        "time": "0:00:06",
         "signal": -61,
         "snr": 33
       }
