@@ -1,68 +1,159 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aviso de Suspensión | WISP</title>
-  <style>
-    body { 
-      background: #050505; 
-      color: #fff; 
-      font-family: 'Inter', system-ui, sans-serif; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      height: 100vh; 
-      margin: 0; 
-      text-align: center; 
-    }
-    .card { 
-      background: rgba(244, 63, 94, 0.05); 
-      border: 1px solid rgba(244, 63, 94, 0.3); 
-      padding: 50px; 
-      border-radius: 24px; 
-      max-width: 450px; 
-      box-shadow: 0 0 60px rgba(244, 63, 94, 0.1); 
-      backdrop-filter: blur(10px);
-    }
-    h1 { 
-      color: #f43f5e; 
-      margin-top: 0; 
-      font-size: 2rem;
-      letter-spacing: -1px;
-    }
-    .btn { 
-      display: inline-block; 
-      background: #f43f5e; 
-      color: #fff; 
-      text-decoration: none; 
-      padding: 14px 28px; 
-      border-radius: 8px; 
-      margin-top: 30px; 
-      font-weight: 600; 
-      transition: all 0.2s;
-    }
-    .btn:hover {
-      background: #e11d48;
-      transform: translateY(-2px);
-    }
-    .logo-container {
-      margin-bottom: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviso de Servicio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #06090e;
+            --bg-card: rgba(15, 20, 28, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --accent: #ef4444; /* Rojo alerta */
+            --accent-hover: #dc2626;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-base);
+            background-image: radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.1) 0%, transparent 50%);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 50px 40px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .icon-container {
+            width: 80px;
+            height: 80px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 24px auto;
+            font-size: 2.5rem;
+            color: var(--accent);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: #25D366; /* Verde WhatsApp */
+            color: #fff;
+            border: none;
+        }
+
+        .btn-primary:hover { background: #20bd5a; transform: translateY(-2px); }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); }
+
+        .footer-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 20px;
+            opacity: 0.6;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <div class="logo-container">
-      <!-- Puedes cambiar este icono por el logo de tu empresa WISP -->
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-      </svg>
+
+    <div class="glass-card">
+        <div class="icon-container">
+            💳
+        </div>
+        
+        <h1>Servicio Suspendido</h1>
+        <p>Tu fecha límite de pago ha vencido. Para restaurar tu navegación, por favor realiza el pago correspondiente y envía tu comprobante.</p>
+
+        <!-- Reemplaza el número de teléfono en el enlace de WhatsApp -->
+        <a href="https://wa.me/5211234567890?text=Hola,%20ya%20realicé%20el%20pago%20de%20mi%20servicio%20de%20internet." class="action-btn btn-primary">
+            💬 Enviar Comprobante
+        </a>
+
+        <button class="action-btn btn-secondary" onclick="solicitarProrroga()">
+            ⏳ Solicitar Promesa de Pago (12 hrs)
+        </button>
+
+        <div class="footer-text">
+            ID de Referencia: <span id="client-ip">Detectando...</span>
+        </div>
     </div>
-    <h1>Servicio Suspendido</h1>
-    <p style="font-size: 1.1rem; line-height: 1.5; color: #e4e4e7;">Estimado cliente, su servicio de internet ha sido pausado temporalmente por un atraso en su facturación.</p>
-    <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 20px;">Por favor, regularice su pago para restablecer la conexión automáticamente y evitar cargos por reconexión.</p>
-    <a href="https://wa.me/526860000000" class="btn">Contactar a Soporte (WhatsApp)</a>
-  </div>
+
+    <script>
+        // Muestra la IP local del cliente cortado por si te llaman para soporte
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => { document.getElementById('client-ip').textContent = data.ip; })
+            .catch(() => { document.getElementById('client-ip').textContent = 'No disponible'; });
+
+        function solicitarProrroga() {
+            alert("Tu solicitud de prórroga ha sido enviada al administrador. Si es aprobada, el servicio se restaurará en 5 minutos.");
+            // Aquí podrías agregar un fetch() que le avise a tu Node.js que el cliente pide prórroga
+        }
+    </script>
+
 </body>
 </html>

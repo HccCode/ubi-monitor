@@ -16,6 +16,7 @@
     "net-snmp": "^3.29.2",
     "node-routeros": "^1.6.8",
     "react-force-graph-2d": "^1.29.2",
+    "routeros-client": "^1.1.1",
     "socket.io": "^4.8.4",
     "ssh2": "^1.17.0"
   }

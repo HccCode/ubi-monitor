@@ -13,7 +13,7 @@ function App() {
   const [devices, setDevices] = useState([]);
   const [selectedIp, setSelectedIp] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   
   const prevOfflineCount = useRef(0);

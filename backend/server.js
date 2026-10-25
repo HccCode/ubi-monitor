@@ -10,7 +10,7 @@ const { RouterOSAPI } = require('node-routeros');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); 
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -28,7 +28,7 @@ const OID_UBNT_STAS = "1.3.6.1.4.1.41112.1.4.5.1.15.1";
 const OID_UBNT_NOISE = "1.3.6.1.4.1.41112.1.4.5.1.8.1";
 
 // Configuración de tu Router Core MikroTik
-const MK_HOST = '192.168.2.1';
+const MK_HOST = '10.4.193.1';
 const MK_USER = 'Procam';
 const MK_PASS = 'Pro029240937';
 
@@ -75,7 +75,6 @@ app.post('/api/devices', (req, res) => {
   res.status(201).json({ message: 'Nodo provisionado' });
 });
 
-// Endpoint de actualización total (Nombre, SNMP, Tenda, Padre, GPS)
 app.put('/api/devices/:ip', (req, res) => {
   const { name, community, clientIp, parentIp, lat, lng } = req.body;
   const devices = getDevices();
@@ -106,7 +105,6 @@ app.delete('/api/devices/:ip', (req, res) => {
 
 app.get('/api/settings/snmp', (req, res) => res.json(getSettings()));
 app.put('/api/settings/snmp', (req, res) => { saveSettings(req.body); res.json({ message: 'Ajustes actualizados' }); });
-
 
 // --- Endpoint MikroTik: Suspender Cliente ---
 app.post('/api/devices/:ip/suspend', async (req, res) => {
@@ -175,6 +173,50 @@ app.post('/api/devices/:ip/resume', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Fallo MikroTik: ' + err.message });
   }
+});
+
+// --- RUTA PARA PROCESAR PROMESA DE PAGO ---
+app.post('/api/prorroga', async (req, res) => {
+    const { ipCliente } = req.body;
+    
+    try {
+        const mkClient = new RouterOSAPI({ host: MK_HOST, user: MK_USER, password: MK_PASS });
+        await mkClient.connect();
+        
+        const found = await mkClient.write('/ip/firewall/address-list/print', [
+            `?address=${ipCliente}`,
+            '?list=morosos'
+        ]);
+        
+        if (found && found.length > 0) {
+            await mkClient.write('/ip/firewall/address-list/remove', [
+                `=.id=${found[0]['.id']}`
+            ]);
+        }
+        mkClient.close();
+        
+        // Programar re-suspensión en 12 hrs
+        setTimeout(async () => {
+            console.log(`Prorroga terminada para ${ipCliente}. Bloqueando de nuevo...`);
+            const mkClientRe = new RouterOSAPI({ host: MK_HOST, user: MK_USER, password: MK_PASS });
+            try {
+                await mkClientRe.connect();
+                await mkClientRe.write('/ip/firewall/address-list/add', [
+                    '=list=morosos',
+                    `=address=${ipCliente}`,
+                    '=comment=Re-suspendido (Prorroga Expirada)'
+                ]);
+                mkClientRe.close();
+            } catch(e) {
+                console.error("Error al re-suspender", e);
+            }
+        }, 12 * 60 * 60 * 1000); 
+
+        res.status(200).json({ success: true, message: "Internet restaurado" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: "Error en MikroTik" });
+    }
 });
 
 // --- Endpoint Especial: Speedtest por SSH ---
@@ -279,6 +321,19 @@ setInterval(async () => {
 
   if (changed) { saveDevices(devices); io.emit('device_updates', devices); }
 }, POLLING_INTERVAL_MS);
+
+// --- INTERCEPTOR GLOBAL PARA MOROSOS (Seguro contra PathError) ---
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use((req, res) => {
+    const filePath = path.join(__dirname, 'public', 'aviso-pago.html');
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            console.error(`[ERROR] No se pudo encontrar el archivo HTML en: ${filePath}`);
+            res.status(404).send("Error: El sistema NOC está funcionando, pero falta el archivo aviso-pago.html en la carpeta 'public'.");
+        }
+    });
+});
 
 const PORT = 3001;
 server.listen(PORT, () => console.log(`UBI-MONITOR NOC corriendo en puerto ${PORT}`));
