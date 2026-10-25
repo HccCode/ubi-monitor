@@ -1,14 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap');
 
 :root {
-  --bg-dark: #030303;
-  --glass-bg: rgba(255, 255, 255, 0.02);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  --bg-base: #06090e;
+  --bg-card: rgba(15, 20, 28, 0.6);
+  --bg-card-hover: rgba(25, 33, 46, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.04);
+  --glass-border-highlight: rgba(255, 255, 255, 0.1);
   --text-main: #f8fafc;
   --text-muted: #64748b;
   --accent: #3b82f6;
   --success: #10b981;
-  --danger: #f43f5e;
+  --danger: #ef4444;
   --warning: #f59e0b;
   --font-ui: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -16,9 +18,10 @@
 
 body {
   margin: 0;
-  background-color: var(--bg-dark);
-  background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
-                    radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05), transparent 25%);
+  background-color: var(--bg-base);
+  background-image: 
+    radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
   color: var(--text-main);
   font-family: var(--font-ui);
   height: 100vh;
@@ -27,7 +30,7 @@ body {
 
 .layout { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-/* --- TOPBAR MODERN REDESIGN --- */
+/* --- TOPBAR --- */
 .topbar-modern {
   display: flex;
   justify-content: space-between;
@@ -36,24 +39,26 @@ body {
   z-index: 10;
   height: 70px; 
   box-sizing: border-box;
+  background: rgba(6, 9, 14, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .brand-modern {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: 1px;
   display: flex;
   align-items: center;
-  gap: 10px;
   color: #fff;
 }
 
 .pill-nav {
   display: flex;
-  background: var(--glass-bg);
+  background: rgba(255,255,255,0.02);
   border: 1px solid var(--glass-border);
   border-radius: 30px;
-  padding: 5px;
+  padding: 4px;
 }
 
 .pill-nav button {
@@ -64,22 +69,17 @@ body {
   border-radius: 20px;
   cursor: pointer;
   font-weight: 500;
-  transition: 0.3s;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
 }
 
-.pill-nav button.active {
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-}
+.pill-nav button:hover { color: #fff; }
+.pill-nav button.active { background: rgba(255,255,255,0.08); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
-.topbar-actions {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-}
+.topbar-actions { display: flex; gap: 15px; align-items: center; }
 
 .search-modern {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--glass-border);
   border-radius: 8px;
   padding: 8px 16px;
@@ -89,112 +89,125 @@ body {
   gap: 10px;
   transition: all 0.3s;
 }
+.search-modern:focus-within { border-color: var(--accent); background: rgba(255,255,255,0.06); }
+.search-modern input { background: transparent; border: none; color: #fff; outline: none; width: 180px; font-family: var(--font-ui); font-size: 0.85rem; }
 
-.search-modern:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 15px rgba(59,130,246,0.2);
-}
-
-.search-modern input {
-  background: transparent;
-  border: none;
-  color: #fff;
-  outline: none;
-  width: 180px;
-  font-family: var(--font-ui);
-}
-
-.btn-icon-white {
+.btn-icon-white, .btn-primary-white {
   background: #fff;
   color: #000;
   border: none;
-  width: 36px;
   height: 36px;
   border-radius: 8px;
   cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.1rem;
-  transition: transform 0.1s;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: transform 0.1s, box-shadow 0.2s;
 }
-
-.btn-primary-white {
-  background: #fff;
-  color: #000;
-  border: none;
-  padding: 0 20px;
-  height: 36px;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: transform 0.1s;
-}
-
+.btn-icon-white { width: 36px; display: flex; justify-content: center; align-items: center; font-size: 1rem; }
+.btn-primary-white { padding: 0 20px; }
 .btn-icon-white:active, .btn-primary-white:active { transform: scale(0.95); }
 
-/* --- BENTO BOX GRID OVERVIEW --- */
+/* --- GRID PRINCIPAL --- */
 .bento-overview {
   display: grid;
-  grid-template-columns: 1fr 280px;
-  grid-template-rows: minmax(0, 1fr); /* Única fila dinámica que toma todo el alto */
-  gap: 20px;
+  grid-template-columns: 1fr 300px;
+  grid-template-rows: 1fr; 
+  gap: 24px;
   height: calc(100vh - 70px);
-  padding: 0 30px 30px 30px;
+  padding: 24px 30px 30px 30px;
   box-sizing: border-box; 
 }
 
+/* --- TABLA DE EQUIPOS --- */
 .table-card {
-  grid-column: 1 / 2;
-  grid-row: 1 / 2;
-  background: rgba(20, 20, 20, 0.4);
+  background: var(--bg-card);
   border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 20px 10px 20px 20px;
+  border-radius: 16px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 0; 
+  backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
+.table-header-container {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(0,0,0,0.2);
+}
+
+.ultra-table { width: 100%; border-collapse: collapse; }
+.ultra-table th { 
+  text-align: left; 
+  font-size: 0.65rem; 
+  color: var(--text-muted); 
+  text-transform: uppercase; 
+  font-weight: 600; 
+  letter-spacing: 1px;
+}
+.ultra-table td { 
+  padding: 16px 24px; 
+  border-bottom: 1px solid var(--glass-border); 
+  font-size: 0.9rem; 
+  cursor: pointer; 
+  transition: background 0.2s; 
+  vertical-align: middle;
+}
+
+.ultra-table tr:hover td { background: var(--bg-card-hover); }
+.ultra-table tr:last-child td { border-bottom: none; }
+
+.mono-cell { font-family: var(--font-mono); }
+
+/* Indicadores y estados */
+.glow-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.status-text { font-weight: 500; font-size: 0.85rem; }
+
+/* Jerarquía visual (El AP arriba, clientes abajo) */
+.ap-row td { background: rgba(255,255,255,0.02); }
+.ap-icon { font-size: 1.1rem; opacity: 0.9; margin-right: 10px; }
+.cpe-icon { font-size: 0.9rem; opacity: 0.5; margin-right: 10px; }
+.tree-line { color: var(--glass-border-highlight); margin-right: 8px; font-family: var(--font-mono); }
+
+/* --- KPIs LATERALES --- */
 .side-kpis {
-  grid-column: 2 / 3;
-  grid-row: 1 / 2;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  min-height: 0;
+  gap: 24px;
 }
 
-/* --- KPI CARDS MODERNOS --- */
 .kpi-card-modern {
-  background: rgba(20, 20, 20, 0.4);
+  background: var(--bg-card);
   border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 30px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  transition: all 0.3s ease;
-  cursor: pointer;
   flex: 1; 
-  min-height: 0; 
+  backdrop-filter: blur(20px);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
 .kpi-card-modern:hover {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.1);
   transform: translateY(-4px);
+  border-color: var(--glass-border-highlight);
 }
 
 .kpi-title {
-  font-size: 0.75rem;
-  letter-spacing: 2px;
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
   color: var(--text-muted);
   text-transform: uppercase;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   font-weight: 600;
 }
 
@@ -205,38 +218,75 @@ body {
   font-family: var(--font-mono);
 }
 
-.number-success { color: #00e676; }
+.number-success { color: var(--success); }
 .number-danger { color: #333; }
-.active-danger { color: #ff3b30; text-shadow: 0 0 30px rgba(239, 68, 68, 0.3); }
+.active-danger { color: var(--danger); text-shadow: 0 0 40px rgba(239, 68, 68, 0.4); font-weight: 500;}
 
-/* --- TABLA ULTRA --- */
-.ultra-table { width: 100%; border-collapse: collapse; }
-.ultra-table th { text-align: left; padding: 16px 0; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--glass-border); font-weight: 500; }
-.ultra-table td { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 0.95rem; cursor: pointer; transition: background 0.2s; position: relative; }
-.ultra-table tr:hover td { background: rgba(255,255,255,0.03); }
-.mono-cell { font-family: var(--font-mono); }
-
-/* --- MODALES Y FORMULARIOS --- */
-.drawer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 50; display: flex; }
-.input { background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: #fff; padding: 12px 16px; border-radius: 8px; font-family: var(--font-mono); outline: none; width: 100%; box-sizing: border-box; }
-.input:focus { border-color: var(--accent); }
-
-/* --- ESTADOS CRÍTICOS Y ANIMACIONES --- */
-.row-critical { background: rgba(244, 63, 94, 0.05); }
-.row-critical:hover td { background: rgba(244, 63, 94, 0.1) !important; }
-
-@keyframes pulseRed {
-  0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
-  70% { box-shadow: 0 0 0 20px rgba(244, 63, 94, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
-}
-.pulse-danger { animation: pulseRed 2s infinite; border-color: rgba(244,63,94,0.5); }
-
-/* --- KIOSK MODE --- */
-.kiosk-mode .bento-overview { padding-top: 30px; height: 100vh; }
-
-/* --- CUSTOM SCROLLBAR --- */
-.custom-scrollbar::-webkit-scrollbar { width: 8px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+/* --- MODALES Y DRAWERS (Restaurados y Modernizados) --- */
+
+/* Fondo oscuro borroso detrás del panel */
+.drawer-overlay, .modal-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  width: 100vw; 
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 999;
+  display: flex;
+}
+
+/* El drawer se alinea a la derecha */
+.drawer-overlay {
+  justify-content: flex-end; 
+}
+
+/* El modal se alinea al centro */
+.modal-overlay {
+  justify-content: center; 
+  align-items: center;
+}
+
+/* El panel lateral de opciones */
+.drawer-content, .drawer {
+  width: 400px;
+  height: 100vh;
+  background: rgba(11, 15, 25, 0.95);
+  border-left: 1px solid var(--glass-border-highlight);
+  box-shadow: -10px 0 40px rgba(0,0,0,0.8);
+  padding: 30px;
+  box-sizing: border-box;
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow-y: auto;
+  color: var(--text-main);
+}
+
+/* Animación de entrada fluida */
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* Modal de Agregar Equipo */
+.modal-content, .modal {
+  background: rgba(11, 15, 25, 0.95);
+  border: 1px solid var(--glass-border-highlight);
+  padding: 30px;
+  border-radius: 16px;
+  min-width: 400px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  color: var(--text-main);
+}
+
+/* Ajustes para los botones dentro del panel para que combinen */
+.drawer-content button, .modal-content button {
+  cursor: pointer;
+  font-family: var(--font-ui);
+}
